@@ -1,0 +1,152 @@
+/* mood.css - Mood 관련 페이지 스타일 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
+    background-color: #f9f9f9;
+    color: #333;
+    text-align: center; /* 메인페이지 중앙 정렬 */
+}
+
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    width: fit-content;
+    margin: 30px auto;
+}
+
+label {
+    display: block;
+    margin: 10px 0;
+}
+
+input[type="text"],
+textarea {
+    width: 300px;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.mood-radio {
+    margin-right: 10px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 6px 12px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+table th {
+    background-color: #f2f2f2;
+}
+
+/* 테이블 액션 버튼 inline 처리 */
+table td form {
+    display: inline;
+    margin: 0 3px;
+    padding: 0;
+}
+
+table td a, table td button {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 3px;
+}
+
+a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: blue;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* 기록 리스트용 */
+.mood-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.mood-list button:hover {
+    background-color: #45a049;
+}
+
+/* list 페이지 액션 버튼 통일 */
+.mood-list .action-buttons button {
+    background-color: #4CAF50;  /* 초록 버튼 */
+    color: white;
+    border: none;
+    border-radius: 4px;         /* 모서리 둥글게 */
+    padding: 4px 10px;          /* 크기 조정 */
+    cursor: pointer;
+    margin-right: 5px;          /* 버튼 간 간격 */
+    font-size: 0.9em;
+    box-shadow: none;           /* 그림자 제거 */
+}
+
+.mood-list .action-buttons button:hover {
+    background-color: #45a049;
+}
+
+/* 기록 상세/수정용 */
+.mood-detail, .mood-edit {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.mood-detail p, .mood-edit p {
+    margin: 8px 0;
+}
+
+/* 메인 페이지에서 오늘 기록 여부 안내 */
+.today-record-info {
+    text-align: center;
+    margin: 10px 0;
+    font-weight: bold;
+    color: #555;
+}
+
+/* 버튼 그룹 */
+.button-group {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.button-group button, .button-group a {
+    margin-right: 10px;
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - MoodLog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mint: {
+                            50:  '#f0fdf8',
+                            100: '#ccfbee',
+                            200: '#99f6dd',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-mint-50 min-h-screen flex flex-col items-center justify-center px-4">
+
+<div class="w-full max-w-sm fade-in flex flex-col gap-6">
+
+    <!-- 로고 -->
+    <div class="text-center">
+        <div class="w-14 h-14 rounded-2xl bg-mint-500 flex items-center justify-center text-2xl mx-auto mb-3">
+            🌿
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800">MoodLog</h1>
+        <p class="text-gray-400 text-sm mt-1">오늘의 감정을 기록해보세요</p>
+    </div>
+
+    <!-- 로그인 카드 -->
+    <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-6 flex flex-col gap-4">
+
+        <!-- 이메일 -->
+        <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-gray-700">이메일</label>
+            <input
+                    type="email"
+                    id="email"
+                    placeholder="example@email.com"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"
+            />
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-gray-700">비밀번호</label>
+            <input
+                    type="password"
+                    id="password"
+                    placeholder="비밀번호를 입력하세요"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"
+                    onkeydown="if(event.key==='Enter') login()"
+            />
+        </div>
+
+        <!-- 에러 메시지 -->
+        <p id="errorMsg" class="hidden text-red-400 text-xs text-center">
+            이메일 또는 비밀번호를 확인해주세요.
+        </p>
+
+        <!-- 로그인 버튼 -->
+        <button
+                onclick="login()"
+                class="w-full bg-mint-500 hover:bg-mint-600 active:bg-mint-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
+            로그인
+        </button>
+
+        <!-- 소셜 로그인 구분선 -->
+        <div class="flex items-center gap-3">
+            <div class="flex-1 h-px bg-gray-200"></div>
+            <span class="text-xs text-gray-400">또는</span>
+            <div class="flex-1 h-px bg-gray-200"></div>
+        </div>
+
+        <!-- 카카오 로그인 버튼 -->
+        <a href="/oauth2/authorization/kakao"
+           class="flex items-center justify-center gap-2 w-full bg-[#FEE500] hover:bg-[#F0D800] text-[#191919] font-semibold py-3 rounded-xl transition-colors text-sm">
+            <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png"
+                 class="w-5 h-5" alt="kakao">
+            카카오로 로그인
+        </a>
+
+    </div>
+
+
+
+    <!-- 회원가입 링크 -->
+    <p class="text-center text-sm text-gray-400">
+        아직 계정이 없으신가요?
+        <a href="/signup.html" class="text-mint-600 font-medium hover:underline ml-1">회원가입</a>
+    </p>
+
+</div>
+
+<script>
+    function login() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const errorMsg = document.getElementById("errorMsg");
+
+        errorMsg.classList.add("hidden");
+
+        fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("로그인 실패");
+            return res.json();
+        })
+        .then(data => {
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("refreshToken", data.refreshToken);
+            location.href = "/";
+        })
+        .catch(err => {
+            console.error(err);
+            errorMsg.classList.remove("hidden");
+        });
+    }
+</script>
+</body>
+</html>

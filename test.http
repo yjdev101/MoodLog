@@ -1,0 +1,2 @@
+GET http://localhost:9090/api/test
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MSIsImlhdCI6MTc3NDI2NTY0NCwiZXhwIjoxNzc0MjY5MjQ0fQ.yuVt3c_bNzqO4q-9pcgtPY-C9b6Dr3cyuc7NbPNcJVE

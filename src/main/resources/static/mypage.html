@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지 - MoodLog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { mint: { 50:'#f0fdf8',100:'#ccfbee',200:'#99f6dd',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e' } }, fontFamily: { sans: ['Noto Sans KR','sans-serif'] } } }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body class="bg-mint-50 min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-mint-500 flex items-center justify-center text-white">🌿</div>
+                <span class="font-bold text-gray-800 text-lg">MoodLog</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-8 flex flex-col gap-5">
+
+        <div id="profileSection" class="hidden fade-in flex flex-col gap-5">
+
+            <!-- 프로필 카드 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-6">
+
+                <!-- 보기 모드 -->
+                <div id="viewMode" class="flex items-center gap-4">
+                    <!-- 프로필 사진 -->
+                    <div class="relative flex-shrink-0">
+                        <div id="profileImgWrap" class="w-16 h-16 rounded-full bg-mint-100 flex items-center justify-center text-3xl overflow-hidden cursor-pointer" onclick="document.getElementById('imageInput').click()">
+                            <img id="profileImg" src="" alt="" class="hidden w-full h-full object-cover rounded-full">
+                            <span id="profileEmoji">🙂</span>
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-5 h-5 bg-mint-500 rounded-full flex items-center justify-center cursor-pointer" onclick="document.getElementById('imageInput').click()">
+                            <span class="text-white text-xs">+</span>
+                        </div>
+                        <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="uploadImage(event)">
+                    </div>
+
+                    <!-- 닉네임 + 상태메시지 -->
+                    <div class="flex-1 min-w-0">
+                        <p class="text-gray-800 text-lg font-bold truncate" id="nicknameView"></p>
+                        <p class="text-gray-400 text-sm truncate" id="bioView">상태메시지를 입력해보세요</p>
+                    </div>
+
+                    <!-- 수정 버튼 -->
+                    <button onclick="enterEditMode()" class="flex-shrink-0 text-gray-300 hover:text-mint-500 transition-colors">
+                        ✏️
+                    </button>
+                </div>
+
+                <!-- 수정 모드 -->
+                <div id="editMode" style="display:none;" class="flex-col gap-3">
+                    <!-- 닉네임 입력 -->
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-medium text-gray-500">닉네임</label>
+                        <input type="text" id="nicknameInput"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"/>
+                    </div>
+                    <!-- 상태메시지 입력 -->
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-medium text-gray-500">상태메시지</label>
+                        <input type="text" id="bioInput" placeholder="상태메시지를 입력해보세요"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"/>
+                    </div>
+                    <!-- 버튼 -->
+                    <div class="flex gap-2 mt-1">
+                        <button onclick="saveProfile()" class="flex-1 bg-mint-500 hover:bg-mint-600 text-white font-medium py-2 rounded-xl text-sm transition-colors">
+                            저장
+                        </button>
+                        <button onclick="exitEditMode()" class="flex-1 border border-gray-200 text-gray-400 hover:bg-gray-50 font-medium py-2 rounded-xl text-sm transition-colors">
+                            취소
+                        </button>
+                    </div>
+                    <p id="editError" class="hidden text-red-400 text-xs text-center"></p>
+                </div>
+            </div>
+
+            <!-- 메뉴 -->
+            <div class="flex flex-col gap-3">
+                <a href="/mood/list.html" class="bg-white rounded-2xl shadow-sm border border-mint-100 p-4 flex items-center justify-between hover:border-mint-400 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">📋</span>
+                        <span class="text-gray-700 font-medium">감정 기록 목록</span>
+                    </div>
+                    <span class="text-gray-300">›</span>
+                </a>
+                <a href="/analysis.html" class="bg-white rounded-2xl shadow-sm border border-mint-100 p-4 flex items-center justify-between hover:border-mint-400 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">📊</span>
+                        <span class="text-gray-700 font-medium">AI 기분 분석</span>
+                    </div>
+                    <span class="text-gray-300">›</span>
+                </a>
+                <a href="/" class="bg-white rounded-2xl shadow-sm border border-mint-100 p-4 flex items-center justify-between hover:border-mint-400 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🏠</span>
+                        <span class="text-gray-700 font-medium">메인으로</span>
+                    </div>
+                    <span class="text-gray-300">›</span>
+                </a>
+            </div>
+
+            <!-- 로그아웃 -->
+            <button onclick="logout()" class="w-full border border-red-200 text-red-400 hover:bg-red-50 font-medium py-3 rounded-xl transition-colors text-sm">
+                로그아웃
+            </button>
+        </div>
+
+        <div id="guestSection" class="hidden fade-in flex flex-col items-center justify-center gap-4 py-16 text-center">
+            <p class="text-gray-400">로그인 상태가 아닙니다.</p>
+            <a href="/login.html" class="bg-mint-500 text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-mint-600 transition-colors">로그인하기</a>
+        </div>
+
+    </main>
+
+    <!-- 하단 네비게이션 -->
+    <nav class="bg-white border-t border-gray-100 sticky bottom-0 md:hidden">
+        <div class="max-w-2xl mx-auto px-4 py-2 flex justify-around">
+            <a href="/" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">🏠</span><span class="text-xs">홈</span></a>
+            <a href="/mood/write.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">✏️</span><span class="text-xs">기록</span></a>
+            <a href="/mood/list.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">📋</span><span class="text-xs">목록</span></a>
+            <a href="/mypage.html" class="flex flex-col items-center gap-1 text-mint-500"><span class="text-xl">👤</span><span class="text-xs font-medium">마이</span></a>
+        </div>
+    </nav>
+
+    <script>
+        const token = localStorage.getItem("accessToken");
+
+        window.addEventListener("pageshow", function() {
+            document.getElementById("profileSection").style.display = "none";
+            document.getElementById("guestSection").style.display = "none";
+
+            if (token) {
+                fetch("/api/profile", { headers: { "Authorization": "Bearer " + token } })
+                .then(res => {
+                    if (res.status === 401) { localStorage.removeItem("accessToken"); localStorage.removeItem("refreshToken"); throw new Error("인증 실패"); }
+                    if (!res.ok) throw new Error("서버 오류");
+                    return res.json();
+                })
+                .then(profile => {
+                    renderProfile(profile);
+                    document.getElementById("profileSection").style.display = "flex";
+                })
+                .catch(() => { document.getElementById("guestSection").style.display = "flex"; });
+            } else {
+                document.getElementById("guestSection").style.display = "flex";
+            }
+        });
+
+        function renderProfile(profile) {
+            document.getElementById("nicknameView").innerText = profile.nickname || "";
+            document.getElementById("bioView").innerText = profile.bio || "상태메시지를 입력해보세요";
+
+            // 프로필 사진
+            if (profile.profileImagePath) {
+                document.getElementById("profileImg").src = profile.profileImagePath;
+                document.getElementById("profileImg").classList.remove("hidden");
+                document.getElementById("profileEmoji").classList.add("hidden");
+            } else {
+                document.getElementById("profileImg").classList.add("hidden");
+                document.getElementById("profileEmoji").classList.remove("hidden");
+            }
+        }
+
+        function enterEditMode() {
+            const nickname = document.getElementById("nicknameView").innerText;
+            const bio = document.getElementById("bioView").innerText;
+
+            document.getElementById("nicknameInput").value = nickname;
+            document.getElementById("bioInput").value = bio === "상태메시지를 입력해보세요" ? "" : bio;
+
+            document.getElementById("viewMode").style.display = "none";
+            document.getElementById("editMode").style.display = "flex";
+            document.getElementById("nicknameInput").focus();
+        }
+
+        function exitEditMode() {
+            document.getElementById("viewMode").classList.remove("hidden");
+            document.getElementById("viewMode").style.display = "flex";
+            document.getElementById("editMode").style.display = "none";
+            document.getElementById("editError").classList.add("hidden");
+        }
+
+        function saveProfile() {
+            const nickname = document.getElementById("nicknameInput").value.trim();
+            const bio = document.getElementById("bioInput").value.trim();
+            const errorEl = document.getElementById("editError");
+
+            if (!nickname || nickname.length < 2 || nickname.length > 10) {
+                errorEl.textContent = "닉네임은 2자 이상 10자 이하여야 합니다.";
+                errorEl.classList.remove("hidden");
+                return;
+            }
+
+            errorEl.classList.add("hidden");
+
+            fetch("/api/profile", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                body: JSON.stringify({ nickname, bio })
+            })
+            .then(res => { if (!res.ok) throw new Error("수정 실패"); return res.text(); })
+            .then(() => {
+                document.getElementById("nicknameView").innerText = nickname;
+                document.getElementById("bioView").innerText = bio || "상태메시지를 입력해보세요";
+                exitEditMode();
+            })
+            .catch(() => {
+                errorEl.textContent = "수정에 실패했습니다. 다시 시도해주세요.";
+                errorEl.classList.remove("hidden");
+            });
+        }
+
+        function uploadImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("imageFile", file);
+
+            fetch("/api/profile/image", {
+                method: "POST",
+                headers: { "Authorization": "Bearer " + token },
+                body: formData
+            })
+            .then(res => { if (!res.ok) throw new Error("업로드 실패"); return res.json(); })
+            .then(data => {
+                if (data.profileImagePath) {
+                    document.getElementById("profileImg").src = data.profileImagePath;
+                    document.getElementById("profileImg").classList.remove("hidden");
+                    document.getElementById("profileEmoji").classList.add("hidden");
+                }
+            })
+            .catch(() => alert("이미지 업로드에 실패했습니다."));
+        }
+
+        function logout() {
+            fetch("/api/logout", { method: "POST", headers: { "Authorization": "Bearer " + token } })
+            .finally(() => {
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                location.href = "/login.html";
+            });
+        }
+    </script>
+</body>
+</html>

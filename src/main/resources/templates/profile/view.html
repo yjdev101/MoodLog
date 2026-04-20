@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>프로필</title>
+</head>
+<body>
+<h1>프로필 페이지</h1>
+
+<!-- 프로필 정보 -->
+<div>
+    <img th:if="${profile.profileImagePath != null}"
+         th:src="@{${profile.profileImagePath}}"
+         width="150">
+
+    <h2 th:text="${profile.nickname}">닉네임</h2>
+    <p th:text="${profile.bio}">소개글</p>
+
+    <a th:href="@{/profile/edit}">프로필 수정</a>
+
+    <br/><br/>
+    <a href="/">홈으로</a>
+</div>
+
+<hr>
+
+<!-- 감정 기록 리스트 -->
+<h3>감정 기록</h3>
+
+<div th:if="${#lists.isEmpty(moods)}">
+    <p>기록이 없습니다.</p>
+</div>
+
+<div th:each="mood : ${moods}">
+    <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+
+        <!-- 날짜 -->
+        <p>
+            <strong th:text="${mood.recordDate}">날짜</strong>
+        </p>
+
+        <!-- 감정 -->
+        <p th:text="${mood.mood}">기분</p>
+
+        <!-- 메모 -->
+        <p th:text="${mood.memo}">메모</p>
+
+        <!-- 태그 -->
+        <p th:text="${mood.tagText}">태그</p>
+
+    </div>
+</div>
+</body>
+</html>

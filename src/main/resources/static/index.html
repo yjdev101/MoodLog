@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodLog 메인</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mint: {
+                            50:  '#f0fdf8',
+                            100: '#ccfbee',
+                            200: '#99f6dd',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-mint-50 min-h-screen flex flex-col">
+
+<!-- 헤더 -->
+<header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-mint-500 flex items-center justify-center text-white text-base">
+                🌿
+            </div>
+            <span class="font-bold text-gray-800 text-lg tracking-tight">MoodLog</span>
+        </div>
+        <button id="logoutBtn"
+                class="hidden text-sm text-gray-400 hover:text-mint-600 transition-colors px-3 py-1 rounded-full hover:bg-mint-50">
+            로그아웃
+        </button>
+    </div>
+</header>
+
+<!-- 메인 콘텐츠 -->
+<main class="flex-1 max-w-2xl w-full mx-auto px-4 py-8 flex flex-col gap-5">
+
+    <!-- 로그인 상태 -->
+    <div id="userSection" class="hidden fade-in flex flex-col gap-5">
+
+        <!-- 인사 카드 -->
+        <div class="bg-white rounded-2xl shadow-sm p-5 border border-mint-100">
+            <p class="text-gray-500 text-sm mb-1">안녕하세요 👋</p>
+            <p class="text-gray-800 text-xl font-bold">
+                <span id="nickname"></span>님
+            </p>
+            <p class="text-gray-400 text-sm mt-1">오늘 하루는 어떠셨나요?</p>
+        </div>
+
+        <!-- 오늘 기분 카드 -->
+        <div id="moodSection" class="bg-white rounded-2xl shadow-sm p-5 border border-mint-100">
+            <!-- JS로 채워짐 -->
+        </div>
+
+        <!-- 메뉴 카드 -->
+        <div class="grid grid-cols-2 gap-3">
+            <a href="/mypage.html"
+               class="bg-white rounded-2xl shadow-sm p-4 border border-mint-100 flex flex-col items-center gap-2 hover:border-mint-400 transition-colors">
+                <span class="text-2xl">👤</span>
+                <span class="text-sm font-medium text-gray-700">마이페이지</span>
+            </a>
+            <a href="/analysis.html"
+               class="bg-white rounded-2xl shadow-sm p-4 border border-mint-100 flex flex-col items-center gap-2 hover:border-mint-400 transition-colors">
+                <span class="text-2xl">📊</span>
+                <span class="text-sm font-medium text-gray-700">AI 기분 분석</span>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- 비로그인 상태 -->
+    <div id="guestSection" class="hidden fade-in flex flex-col items-center justify-center gap-6 py-16">
+        <div class="text-center">
+            <div class="text-5xl mb-4">🌿</div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">MoodLog</h2>
+            <p class="text-gray-400 text-sm">오늘의 감정을 기록해보세요</p>
+        </div>
+        <div class="flex flex-col w-full gap-3">
+            <a href="/login.html"
+               class="w-full bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl text-center transition-colors text-sm">
+                로그인
+            </a>
+            <a href="/signup.html"
+               class="w-full bg-white border border-mint-300 hover:border-mint-500 text-mint-600 font-semibold py-3 rounded-xl text-center transition-colors text-sm">
+                회원가입
+            </a>
+        </div>
+    </div>
+
+</main>
+
+<!-- 하단 네비게이션 (모바일) -->
+<nav id="bottomNav" class="hidden bg-white border-t border-gray-100 sticky bottom-0 md:hidden">
+    <div class="max-w-2xl mx-auto px-4 py-2 flex justify-around">
+        <a href="/index.html" class="flex flex-col items-center gap-1 text-mint-500">
+            <span class="text-xl">🏠</span>
+            <span class="text-xs font-medium">홈</span>
+        </a>
+        <a href="/mood/write.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors">
+            <span class="text-xl">✏️</span>
+            <span class="text-xs font-medium">기록</span>
+        </a>
+        <a href="/mood/list.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors">
+            <span class="text-xl">📋</span>
+            <span class="text-xs font-medium">목록</span>
+        </a>
+        <a href="/mypage.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors">
+            <span class="text-xl">👤</span>
+            <span class="text-xs font-medium">마이</span>
+        </a>
+    </div>
+</nav>
+
+<script>
+
+    // 카카오 로그인 후 토큰 저장
+    const urlParams = new URLSearchParams(window.location.search);
+    const kakaoToken = urlParams.get("token");
+    if (kakaoToken) {
+        localStorage.setItem("accessToken", kakaoToken);
+        window.history.replaceState({}, document.title, "/");  // URL에서 token 제거
+    }
+
+    const token = localStorage.getItem("accessToken");
+
+    if (token) {
+        fetch("/api/mypage", { headers: { "Authorization": "Bearer " + token } })
+            .then(res => {
+                if (!res.ok) throw new Error("인증 실패");
+                return res.text();
+            })
+            .then(nickname => {
+                document.getElementById("nickname").innerText = nickname;
+                document.getElementById("userSection").style.display = "flex";
+                document.getElementById("logoutBtn").classList.remove("hidden");
+                document.getElementById("bottomNav").classList.remove("hidden");
+
+                return fetch("/api/mood/today", { headers: { "Authorization": "Bearer " + token } });
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("mood 조회 실패");
+                return res.json();
+            })
+            .then(data => {
+                const moodSection = document.getElementById("moodSection");
+                if (data.hasTodayRecord) {
+                    moodSection.innerHTML = `
+                        <p class="text-gray-500 text-sm mb-3">오늘의 기분</p>
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">😎</span>
+                            <div>
+                                <p class="text-gray-800 font-medium">오늘 이미 기록했어요!</p>
+                                <a href="/mood/list.html" class="text-mint-600 text-sm hover:underline">기록 확인하기 →</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    moodSection.innerHTML = `
+                        <p class="text-gray-500 text-sm mb-3">오늘의 기분</p>
+                        <a href="/mood/write.html"
+                           class="flex items-center justify-center gap-2 bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
+                            ✏️ 오늘의 기분 기록하기
+                        </a>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                document.getElementById("guestSection").style.display = "flex";
+            });
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            const token = localStorage.getItem("accessToken");
+            fetch("/api/logout", {
+                method: "POST",
+                headers: { "Authorization": "Bearer " + token }
+            }).finally(() => {
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                // 카카오 세션까지 함께 로그아웃
+                const REST_API_KEY = "570e673b977b5235c4cbe532ae2183b9";
+                const LOGOUT_REDIRECT_URI = "http://localhost:9090/";
+                location.href = `https://kauth.kakao.com/oauth/logout?client_id=${REST_API_KEY}&logout_redirect_uri=${LOGOUT_REDIRECT_URI}`;
+            });
+        });
+
+    } else {
+        document.getElementById("guestSection").style.display = "flex";
+    }
+</script>
+</body>
+</html>

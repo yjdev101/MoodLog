@@ -5,9 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 기분 분석 - MoodLog</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>tailwind.config={theme:{extend:{colors:{mint:{50:'#f0fdf8',100:'#ccfbee',200:'#99f6dd',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e'}},fontFamily:{sans:['Noto Sans KR','sans-serif']}}}}</script>
-    <style>body{font-family:'Noto Sans KR',sans-serif;}.fade-in{animation:fadeIn 0.5s ease forwards;}@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}</style>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-btn { flex: 1; text-align: center; padding: 7px 0; font-size: 14px; border-radius: 8px; cursor: pointer; color: #9ca3af; transition: all 0.15s; }
+        .tab-btn.active { background: white; color: #0f766e; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .period-btn { padding: 5px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid #d1fae5; color: #0f766e; background: white; transition: all 0.15s; }
+        .period-btn.active { background: #14b8a6; color: white; border-color: #14b8a6; }
+    </style>
 </head>
 <body class="bg-mint-50 min-h-screen flex flex-col">
 
@@ -21,36 +29,69 @@
         </div>
     </header>
 
-    <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-8 flex flex-col gap-5">
+    <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-4 flex flex-col gap-4">
 
-        <!-- 로딩 -->
-        <div id="loadingSection" class="flex flex-col items-center justify-center py-16 gap-3">
-            <div class="text-4xl animate-spin">🤖</div>
-            <p class="text-gray-400 text-sm">분석 중입니다... 잠시만 기다려주세요</p>
+        <!-- 탭 전환 -->
+        <div class="flex bg-gray-100 rounded-xl p-1 gap-1">
+            <div class="tab-btn active" id="tab-analysis" onclick="switchTab('analysis')">태그 분석</div>
+            <div class="tab-btn" id="tab-coaching" onclick="switchTab('coaching')">감정 코칭</div>
         </div>
 
-        <!-- 결과 -->
-        <div id="resultSection" class="hidden fade-in flex flex-col gap-5">
+        <!-- ===== 태그 분석 탭 ===== -->
+        <div id="view-analysis" class="flex flex-col gap-4">
 
-            <!-- 태그 통계 -->
-            <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
-                <p class="text-gray-500 text-sm mb-4">📈 태그 통계</p>
-                <div id="tagStats" class="flex flex-col gap-3"></div>
+            <div id="loadingAnalysis" class="flex flex-col items-center justify-center py-16 gap-3">
+                <div class="text-4xl animate-spin">🤖</div>
+                <p class="text-gray-400 text-sm">분석 중입니다... 잠시만 기다려주세요</p>
             </div>
 
-            <!-- AI 코멘트 -->
-            <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
-                <p class="text-gray-500 text-sm mb-3">🤖 AI 분석 코멘트</p>
-                <p id="aiComment" class="text-gray-700 leading-relaxed text-sm"></p>
+            <div id="resultAnalysis" class="hidden fade-in flex flex-col gap-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+                    <p class="text-gray-500 text-sm mb-4">📈 태그 통계</p>
+                    <div id="tagStats" class="flex flex-col gap-3"></div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+                    <p class="text-gray-500 text-sm mb-3">🤖 AI 분석 코멘트</p>
+                    <p id="aiComment" class="text-gray-700 leading-relaxed text-sm"></p>
+                </div>
             </div>
 
+            <div id="emptyAnalysis" class="hidden fade-in flex flex-col items-center justify-center py-16 gap-4 text-center">
+                <span class="text-5xl">📭</span>
+                <p class="text-gray-400 text-sm">아직 기록이 없어요.<br>기분을 기록해보세요!</p>
+                <a href="/mood/write.html" class="bg-mint-500 text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-mint-600 transition-colors">기록하기</a>
+            </div>
         </div>
 
-        <!-- 기록 없음 -->
-        <div id="emptySection" class="hidden fade-in flex flex-col items-center justify-center py-16 gap-4 text-center">
-            <span class="text-5xl">📭</span>
-            <p class="text-gray-400 text-sm">아직 기록이 없어요.<br>기분을 기록해보세요!</p>
-            <a href="/mood/write.html" class="bg-mint-500 text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-mint-600 transition-colors">기록하기</a>
+        <!-- ===== 감정 코칭 탭 ===== -->
+        <div id="view-coaching" class="hidden flex flex-col gap-4">
+
+            <!-- 기간 선택 -->
+            <div class="flex gap-2">
+                <button class="period-btn active" id="btn-7" onclick="loadCoaching(7)">최근 7일</button>
+                <button class="period-btn" id="btn-30" onclick="loadCoaching(30)">최근 30일</button>
+            </div>
+
+            <div id="loadingCoaching" class="hidden flex flex-col items-center justify-center py-16 gap-3">
+                <div class="text-4xl animate-spin">🤖</div>
+                <p class="text-gray-400 text-sm">코칭 중입니다... 잠시만 기다려주세요</p>
+            </div>
+
+            <div id="resultCoaching" class="hidden fade-in flex flex-col gap-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-gray-500 text-sm">🧠 감정 코칭</p>
+                        <span id="coachingMeta" class="text-xs text-gray-400"></span>
+                    </div>
+                    <p id="coachingText" class="text-gray-700 leading-relaxed text-sm whitespace-pre-line"></p>
+                </div>
+            </div>
+
+            <div id="emptyCoaching" class="hidden fade-in flex flex-col items-center justify-center py-16 gap-4 text-center">
+                <span class="text-5xl">📭</span>
+                <p class="text-gray-400 text-sm">해당 기간에 기록이 없어요.<br>기분을 기록해보세요!</p>
+                <a href="/mood/write.html" class="bg-mint-500 text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-mint-600 transition-colors">기록하기</a>
+            </div>
         </div>
 
     </main>
@@ -71,14 +112,29 @@
 
         const moodLabel = m => ({ VERY_GOOD:"😄 매우좋음", GOOD:"🙂 좋음", NORMAL:"😐 보통", BAD:"😕 나쁨", VERY_BAD:"😢 매우나쁨" }[m] || m);
 
+        // 탭 전환
+        function switchTab(tab) {
+            const isAnalysis = tab === 'analysis';
+            document.getElementById("tab-analysis").classList.toggle("active", isAnalysis);
+            document.getElementById("tab-coaching").classList.toggle("active", !isAnalysis);
+            document.getElementById("view-analysis").classList.toggle("hidden", !isAnalysis);
+            document.getElementById("view-coaching").classList.toggle("hidden", isAnalysis);
+
+            if (!isAnalysis && document.getElementById("resultCoaching").classList.contains("hidden")
+                            && document.getElementById("emptyCoaching").classList.contains("hidden")) {
+                loadCoaching(7);
+            }
+        }
+
+        // 태그 분석 로드
         fetch("/api/analysis", { headers: { "Authorization": "Bearer " + token } })
         .then(res => res.json())
         .then(data => {
-            document.getElementById("loadingSection").style.display = "none";
+            document.getElementById("loadingAnalysis").style.display = "none";
             const { tagStats, aiComment } = data;
 
             if (Object.keys(tagStats).length === 0) {
-                document.getElementById("emptySection").style.display = "flex";
+                document.getElementById("emptyAnalysis").style.display = "flex";
                 return;
             }
 
@@ -94,12 +150,47 @@
             }
 
             document.getElementById("aiComment").innerText = aiComment;
-            document.getElementById("resultSection").style.display = "flex";
+            document.getElementById("resultAnalysis").style.display = "flex";
         })
         .catch(() => {
-            document.getElementById("loadingSection").style.display = "none";
-            document.getElementById("emptySection").style.display = "flex";
+            document.getElementById("loadingAnalysis").style.display = "none";
+            document.getElementById("emptyAnalysis").style.display = "flex";
         });
+
+        // 감정 코칭 로드
+        let coachingLoaded = {};
+        function loadCoaching(period) {
+            // 버튼 활성화
+            document.getElementById("btn-7").classList.toggle("active", period === 7);
+            document.getElementById("btn-30").classList.toggle("active", period === 30);
+
+            if (coachingLoaded[period]) return; // 이미 로드된 기간은 재요청 안 함
+
+            document.getElementById("resultCoaching").classList.add("hidden");
+            document.getElementById("emptyCoaching").classList.add("hidden");
+            document.getElementById("loadingCoaching").style.display = "flex";
+
+            fetch(`/api/analysis/coaching?period=${period}`, { headers: { "Authorization": "Bearer " + token } })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("loadingCoaching").style.display = "none";
+                const { coaching, recordCount } = data;
+
+                if (!coaching || coaching.includes("기록이 없어요")) {
+                    document.getElementById("emptyCoaching").style.display = "flex";
+                    return;
+                }
+
+                document.getElementById("coachingMeta").textContent = `${period}일간 ${recordCount}건의 기록`;
+                document.getElementById("coachingText").textContent = coaching;
+                document.getElementById("resultCoaching").style.display = "flex";
+                coachingLoaded[period] = true;
+            })
+            .catch(() => {
+                document.getElementById("loadingCoaching").style.display = "none";
+                document.getElementById("emptyCoaching").style.display = "flex";
+            });
+        }
     </script>
 </body>
 </html>

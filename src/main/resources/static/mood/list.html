@@ -285,7 +285,9 @@
                 cell.className = "cal-cell"
                     + (record ? " has-record " + moodDotClass(record.mood) : "")
                     + (isToday ? " today" : "");
-                cell.innerHTML = `<span class="date-num" style="font-size:12px;color:${isToday ? '#0d9488' : (record ? '#1f2937' : '#9ca3af')}">${d}</span>`;
+                const moodEmoji = { VERY_GOOD:"😄", GOOD:"🙂", NORMAL:"😐", BAD:"😕", VERY_BAD:"😢" };
+                cell.innerHTML = `<span class="date-num" style="font-size:12px;color:${isToday ? '#0d9488' : (record ? '#1f2937' : '#9ca3af')}">${d}</span>`
+                    + (record ? `<span style="font-size:14px;line-height:1;">${moodEmoji[record.mood] || ''}</span>` : '');
 
                 if (record) {
                     cell.addEventListener("click", () => {

@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +38,15 @@ public class AnalysisController {
         User user = getUser(authentication);
         Map<String, Object> result = analysisService.analyze(user);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/coaching")
+    public ResponseEntity<Map<String, Object>> coaching(
+            Authentication authentication,
+            @RequestParam(defaultValue = "7") int period) {
+        if (period != 7 && period != 30) period = 7;
+        User user = getUser(authentication);
+        return ResponseEntity.ok(analysisService.coaching(user, period));
     }
 
     @GetMapping("/stats/monthly")

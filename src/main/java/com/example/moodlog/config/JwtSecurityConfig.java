@@ -1,8 +1,10 @@
 package com.example.moodlog.config;
 
+import com.example.moodlog.domain.auth.service.BlacklistedTokenService;
 import com.example.moodlog.domain.user.security.CustomerUserDetailsService;
 import com.example.moodlog.security.jwt.JwtAuthenticationFilter;
 import com.example.moodlog.security.jwt.JwtTokenProvider;
+import com.example.moodlog.security.oauth2.CustomAuthorizationRequestResolver;
 import com.example.moodlog.security.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -24,6 +27,8 @@ public class JwtSecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomerUserDetailsService customerUserDetailsService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final ClientRegistrationRepository clientRegistrationRepository;
+    private final BlacklistedTokenService blacklistedTokenService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -52,6 +57,7 @@ public class JwtSecurityConfig {
                                 "/api/signup",
                                 "/api/auth/login",
                                 "/api/auth/refresh",
+                                "/api/auth/oauth-token",
                                 "/api/auth/kakao/callback"
                         ).permitAll()
                         .requestMatchers("/api/**").authenticated()
@@ -65,6 +71,9 @@ public class JwtSecurityConfig {
                         })
                 )
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(endpoint ->
+                                endpoint.authorizationRequestResolver(
+                                        new CustomAuthorizationRequestResolver(clientRegistrationRepository)))
                         .redirectionEndpoint(endpoint ->
                                 endpoint.baseUri("/login/oauth2/code/*"))
                         .successHandler(oAuth2SuccessHandler)
@@ -73,7 +82,7 @@ public class JwtSecurityConfig {
                         })
                 )
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenProvider, customerUserDetailsService),
+                        new JwtAuthenticationFilter(jwtTokenProvider, customerUserDetailsService, blacklistedTokenService),
                         UsernamePasswordAuthenticationFilter.class
                 );
 

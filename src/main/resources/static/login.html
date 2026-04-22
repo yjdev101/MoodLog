@@ -101,9 +101,27 @@
         <!-- 카카오 로그인 버튼 -->
         <a href="/oauth2/authorization/kakao"
            class="flex items-center justify-center gap-2 w-full bg-[#FEE500] hover:bg-[#F0D800] text-[#191919] font-semibold py-3 rounded-xl transition-colors text-sm">
-            <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png"
-                 class="w-5 h-5" alt="kakao">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#191919" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3C6.477 3 2 6.597 2 11.077c0 2.943 1.776 5.52 4.461 6.988l-1.137 4.228 4.923-3.242C10.733 19.14 11.36 19.2 12 19.2c5.523 0 10-3.641 10-8.123S17.523 3 12 3z"/>
+            </svg>
             카카오로 로그인
+        </a>
+
+        <!-- 네이버 로그인 버튼 -->
+        <a href="/oauth2/authorization/naver"
+           class="flex items-center justify-center gap-2 w-full bg-[#03C75A] hover:bg-[#02b350] text-white font-semibold py-3 rounded-xl transition-colors text-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/>
+            </svg>
+            네이버로 로그인
+        </a>
+
+        <!-- 구글 로그인 버튼 -->
+        <a href="/oauth2/authorization/google"
+           class="flex items-center justify-center gap-2 w-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-semibold py-3 rounded-xl transition-colors text-sm">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                 class="w-5 h-5" alt="google">
+            구글로 로그인
         </a>
 
     </div>

@@ -1,5 +1,8 @@
 package com.example.moodlog.domain.mood.service;
 
+import com.example.moodlog.common.exception.ConflictException;
+import com.example.moodlog.common.exception.ForbiddenException;
+import com.example.moodlog.common.exception.NotFoundException;
 import com.example.moodlog.domain.mood.dto.MoodStatResponse;
 import com.example.moodlog.domain.mood.entity.MoodRecord;
 import com.example.moodlog.domain.mood.entity.MoodType;
@@ -24,7 +27,7 @@ public class MoodService {
         LocalDate today = LocalDate.now();
 
         if (moodRecordRepository.existsByUserAndRecordDate(user, today)) {
-            throw new IllegalStateException("오늘 이미 기록했습니다.");
+            throw new ConflictException("오늘 이미 기록했습니다.");
         }
 
         MoodRecord record = MoodRecord.builder()
@@ -46,9 +49,9 @@ public class MoodService {
     // 단일 기록 조회 + 권한 체크
     public MoodRecord getMood(Long id, User user) {
         MoodRecord record = moodRecordRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("기록을 찾을 수 없습니다"));
+                .orElseThrow(() -> new NotFoundException("기록을 찾을 수 없습니다."));
         if (!record.getUser().getId().equals(user.getId())) {
-            throw new IllegalStateException("권한이 없습니다.");
+            throw new ForbiddenException("권한이 없습니다.");
         }
         return record;
     }

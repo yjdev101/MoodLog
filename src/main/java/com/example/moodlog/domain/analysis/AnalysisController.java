@@ -1,20 +1,14 @@
 package com.example.moodlog.domain.analysis;
 
+import com.example.moodlog.domain.analysis.service.AnalysisService;
 import com.example.moodlog.domain.mood.dto.MoodStatResponse;
 import com.example.moodlog.domain.mood.service.MoodService;
 import com.example.moodlog.domain.user.entity.User;
 import com.example.moodlog.domain.user.repository.UserRepository;
-import com.example.moodlog.domain.user.security.CustomerUserDetails;
-import com.example.moodlog.service.AnalysisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -35,25 +29,18 @@ public class AnalysisController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> analyze(Authentication authentication) {
-        User user = getUser(authentication);
-        Map<String, Object> result = analysisService.analyze(user);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(analysisService.analyze(getUser(authentication)));
     }
 
     @GetMapping("/coaching")
-    public ResponseEntity<Map<String, Object>> coaching(
-            Authentication authentication,
-            @RequestParam(defaultValue = "7") int period) {
+    public ResponseEntity<Map<String, Object>> coaching(Authentication authentication,
+                                                        @RequestParam(defaultValue = "7") int period) {
         if (period != 7 && period != 30) period = 7;
-        User user = getUser(authentication);
-        return ResponseEntity.ok(analysisService.coaching(user, period));
+        return ResponseEntity.ok(analysisService.coaching(getUser(authentication), period));
     }
 
     @GetMapping("/stats/monthly")
-    @ResponseBody
-    public ResponseEntity<MoodStatResponse> getMonthlyStats(
-            @AuthenticationPrincipal CustomerUserDetails userDetails) {
-        User user = userDetails.getUser();
-        return ResponseEntity.ok(moodService.getMonthlyStats(user));
+    public ResponseEntity<MoodStatResponse> getMonthlyStats(Authentication authentication) {
+        return ResponseEntity.ok(moodService.getMonthlyStats(getUser(authentication)));
     }
 }

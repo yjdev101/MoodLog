@@ -50,9 +50,17 @@
                     <p class="text-gray-500 text-sm mb-4">📈 태그 통계</p>
                     <div id="tagStats" class="flex flex-col gap-3"></div>
                 </div>
-                <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
-                    <p class="text-gray-500 text-sm mb-3">🤖 AI 분석 코멘트</p>
-                    <p id="aiComment" class="text-gray-700 leading-relaxed text-sm"></p>
+                <div class="bg-gradient-to-br from-mint-50 to-white rounded-2xl border border-mint-200 p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-11 h-11 rounded-full bg-mint-500 flex items-center justify-center text-xl shrink-0">🤖</div>
+                        <div>
+                            <p class="text-sm font-semibold text-mint-700">AI 분석 코멘트</p>
+                            <p class="text-xs text-gray-400">Claude AI의 감정 패턴 분석</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-mint-100 p-4">
+                        <p id="aiComment" class="text-gray-700 leading-loose text-sm"></p>
+                    </div>
                 </div>
             </div>
 
@@ -77,14 +85,22 @@
                 <p class="text-gray-400 text-sm">코칭 중입니다... 잠시만 기다려주세요</p>
             </div>
 
-            <div id="resultCoaching" class="hidden fade-in flex flex-col gap-4">
-                <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
-                    <div class="flex items-center justify-between mb-3">
-                        <p class="text-gray-500 text-sm">🧠 감정 코칭</p>
-                        <span id="coachingMeta" class="text-xs text-gray-400"></span>
+            <div id="resultCoaching" class="hidden fade-in flex flex-col gap-3">
+                <!-- 헤더 -->
+                <div class="bg-gradient-to-br from-mint-50 to-white rounded-2xl border border-mint-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-mint-500 flex items-center justify-center text-lg shrink-0">🧠</div>
+                            <div>
+                                <p class="text-sm font-semibold text-mint-700">감정 코칭 리포트</p>
+                                <p class="text-xs text-gray-400">기간별 맞춤 감정 조언</p>
+                            </div>
+                        </div>
+                        <span id="coachingMeta" class="text-xs text-mint-600 bg-mint-100 px-2.5 py-1 rounded-full font-medium"></span>
                     </div>
-                    <p id="coachingText" class="text-gray-700 leading-relaxed text-sm whitespace-pre-line"></p>
                 </div>
+                <!-- 인사이트 카드 (JS로 채워짐) -->
+                <div id="coachingCards" class="flex flex-col gap-3"></div>
             </div>
 
             <div id="emptyCoaching" class="hidden fade-in flex flex-col items-center justify-center py-16 gap-4 text-center">
@@ -112,6 +128,71 @@
 
         const moodLabel = m => ({ VERY_GOOD:"😄 매우좋음", GOOD:"🙂 좋음", NORMAL:"😐 보통", BAD:"😕 나쁨", VERY_BAD:"😢 매우나쁨" }[m] || m);
 
+        const COACHING_CARDS = [
+            { label: '감정 흐름 요약', icon: '📈', iconBg: 'bg-mint-100',   labelColor: 'text-mint-600',   border: 'border-l-4 border-mint-400'   },
+            { label: '주요 요인 분석', icon: '🔍', iconBg: 'bg-amber-100',  labelColor: 'text-amber-600',  border: 'border-l-4 border-amber-400'  },
+            { label: '맞춤 조언',     icon: '💡', iconBg: 'bg-violet-100', labelColor: 'text-violet-600', border: 'border-l-4 border-violet-400' },
+        ];
+
+        // 태그 감정 성향 계산 및 하이라이트
+        let tagSentiment = {};
+
+        function calcTagSentiment(tagStats) {
+            const result = {};
+            for (const [tag, counts] of Object.entries(tagStats)) {
+                const pos = (counts.VERY_GOOD || 0) + (counts.GOOD || 0);
+                const neg = (counts.BAD || 0) + (counts.VERY_BAD || 0);
+                const total = pos + neg + (counts.NORMAL || 0);
+                if (total === 0) { result[tag] = 'neu'; continue; }
+                if (pos / total > 0.6)      result[tag] = 'pos';
+                else if (neg / total > 0.6) result[tag] = 'neg';
+                else                        result[tag] = 'neu';
+            }
+            return result;
+        }
+
+        const TAG_STYLE = {
+            pos: 'bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-semibold',
+            neg: 'bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold',
+            neu: 'bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-semibold',
+        };
+
+        function highlightTags(text) {
+            const tags = Object.keys(tagSentiment).sort((a, b) => b.length - a.length);
+            if (!tags.length) return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const pattern = new RegExp(tags.map(t => t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'), 'g');
+            return escaped.replace(pattern, m => `<span class="${TAG_STYLE[tagSentiment[m] || 'neu']}">${m}</span>`);
+        }
+
+        function parseCoachingSections(text) {
+            // "1. " "2. " "3. " 기준으로 분리
+            const parts = text.split(/\n*\d+\.\s+/).filter(s => s.trim());
+            if (parts.length >= 3) return parts.slice(0, 3).map(s => s.trim());
+            // 빈 줄 기준으로 분리
+            const paragraphs = text.split(/\n\n+/).filter(s => s.trim());
+            if (paragraphs.length >= 3) return paragraphs.slice(0, 3).map(s => s.trim());
+            return [text.trim(), null, null];
+        }
+
+        function renderCoachingCards(text) {
+            const sections = parseCoachingSections(text);
+            const container = document.getElementById('coachingCards');
+            container.innerHTML = '';
+            COACHING_CARDS.forEach((cfg, i) => {
+                if (!sections[i]) return;
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-xl border border-gray-100 ${cfg.border} p-4 flex gap-3 shadow-sm`;
+                card.innerHTML = `
+                    <div class="w-9 h-9 rounded-lg ${cfg.iconBg} flex items-center justify-center text-lg shrink-0">${cfg.icon}</div>
+                    <div>
+                        <p class="text-xs font-semibold ${cfg.labelColor} mb-1.5">${cfg.label}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">${highlightTags(sections[i])}</p>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
         // 탭 전환
         function switchTab(tab) {
             const isAnalysis = tab === 'analysis';
@@ -138,18 +219,20 @@
                 return;
             }
 
+            tagSentiment = calcTagSentiment(tagStats);
+
             const tagStatsDiv = document.getElementById("tagStats");
             for (const [tag, moodCounts] of Object.entries(tagStats)) {
                 const div = document.createElement("div");
                 div.className = "flex flex-col gap-1";
                 div.innerHTML = `
-                    <p class="text-sm font-medium text-gray-700"># ${tag}</p>
+                    <p class="text-sm font-medium text-gray-700"><span class="${TAG_STYLE[tagSentiment[tag] || 'neu']}"># ${tag}</span></p>
                     <p class="text-xs text-gray-400">${Object.entries(moodCounts).map(([m,c]) => `${moodLabel(m)} ${c}회`).join(" · ")}</p>
                 `;
                 tagStatsDiv.appendChild(div);
             }
 
-            document.getElementById("aiComment").innerText = aiComment;
+            document.getElementById("aiComment").innerHTML = highlightTags(aiComment);
             document.getElementById("resultAnalysis").style.display = "flex";
         })
         .catch(() => {
@@ -182,7 +265,7 @@
                 }
 
                 document.getElementById("coachingMeta").textContent = `${period}일간 ${recordCount}건의 기록`;
-                document.getElementById("coachingText").textContent = coaching;
+                renderCoachingCards(coaching);
                 document.getElementById("resultCoaching").style.display = "flex";
                 coachingLoaded[period] = true;
             })

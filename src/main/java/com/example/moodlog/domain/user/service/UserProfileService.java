@@ -3,6 +3,7 @@ package com.example.moodlog.domain.user.service;
 import com.example.moodlog.domain.user.entity.User;
 import com.example.moodlog.domain.user.entity.UserProfile;
 import com.example.moodlog.domain.user.repository.UserProfileRepository;
+import com.example.moodlog.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
+    private final UserRepository userRepository;
 
     public UserProfile createProfile(User user) {
         UserProfile profile = new UserProfile();
@@ -38,6 +40,7 @@ public class UserProfileService {
         if (nickname != null && !nickname.isBlank()) {
             profile.setNickname(nickname);
             user.setNickname(nickname);
+            userRepository.save(user);
         }
 
         if (bio != null) {

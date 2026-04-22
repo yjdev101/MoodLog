@@ -8,12 +8,12 @@ import com.example.moodlog.domain.auth.dto.RefreshRequest;
 import com.example.moodlog.domain.user.entity.User;
 import com.example.moodlog.domain.user.service.UserService;
 import com.example.moodlog.security.jwt.JwtTokenProvider;
+import com.example.moodlog.security.oauth2.OAuthTokenStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +23,7 @@ public class AuthController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final OAuthTokenStore oAuthTokenStore;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
@@ -43,6 +44,14 @@ public class AuthController {
                         refreshToken.getToken()
                 )
         );
+    }
+
+    // 소셜 로그인 후 일회용 코드를 실제 토큰으로 교환
+    @GetMapping("/oauth-token")
+    public ResponseEntity<?> exchangeOAuthCode(@RequestParam String code) {
+        return oAuthTokenStore.consume(code)
+                .map(entry -> ResponseEntity.ok(new LoginResponse(entry.accessToken(), entry.refreshToken())))
+                .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     @PostMapping("/refresh")

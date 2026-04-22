@@ -9,7 +9,6 @@ import com.example.moodlog.domain.user.repository.UserProfileRepository;
 import com.example.moodlog.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -24,14 +23,9 @@ public class DataInitializer implements CommandLineRunner {
     private final UserProfileRepository userProfileRepository;
     private final MoodRecordRepository moodRecordRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(String... args) throws Exception {
-
-        // email, password nullable 자동 적용
-        jdbcTemplate.execute("ALTER TABLE user MODIFY COLUMN email VARCHAR(255) NULL");
-        jdbcTemplate.execute("ALTER TABLE user MODIFY COLUMN password VARCHAR(255) NULL");
 
         // 이미 테스트 유저가 있으면 스킵
         if (userRepository.existsByEmail("test@test.com")) {

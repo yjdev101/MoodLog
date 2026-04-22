@@ -78,6 +78,14 @@
             <!-- JS로 채워짐 -->
         </div>
 
+        <!-- 이번 주 감정 흐름 -->
+        <div class="bg-white rounded-2xl shadow-sm p-5 border border-mint-100">
+            <p class="text-gray-500 text-sm mb-4">이번 주 감정 흐름</p>
+            <div id="weeklyFlow" class="flex justify-between">
+                <!-- JS로 채워짐 -->
+            </div>
+        </div>
+
         <!-- 메뉴 카드 -->
         <div class="grid grid-cols-2 gap-3">
             <a href="/mypage.html"
@@ -139,18 +147,68 @@
 
 <script>
 
-    // 카카오 로그인 후 토큰 저장
+    // 소셜 로그인 후 일회용 코드를 토큰으로 교환
     const urlParams = new URLSearchParams(window.location.search);
-    const kakaoToken = urlParams.get("token");
-    if (kakaoToken) {
-        localStorage.setItem("accessToken", kakaoToken);
-        window.history.replaceState({}, document.title, "/");  // URL에서 token 제거
+    const oauthCode = urlParams.get("code");
+    if (oauthCode) {
+        window.history.replaceState({}, document.title, "/");
+        fetch("/api/auth/oauth-token?code=" + oauthCode)
+            .then(res => {
+                if (!res.ok) throw new Error("코드 교환 실패");
+                return res.json();
+            })
+            .then(data => {
+                localStorage.setItem("accessToken", data.accessToken);
+                localStorage.setItem("refreshToken", data.refreshToken);
+                location.reload();
+            })
+            .catch(() => location.href = "/login.html");
+    }
+
+    const MOOD_EMOJI = { VERY_GOOD: '😄', GOOD: '😊', NORMAL: '😐', BAD: '😔', VERY_BAD: '😢' };
+    const DAY_LABEL  = ['일', '월', '화', '수', '목', '금', '토'];
+
+    function toDateStr(d) {
+        if (Array.isArray(d)) return `${d[0]}-${String(d[1]).padStart(2,'0')}-${String(d[2]).padStart(2,'0')}`;
+        return d;
+    }
+
+    function renderWeeklyFlow(records) {
+        const moodMap = {};
+        records.forEach(r => { moodMap[toDateStr(r.recordDate)] = r.mood; });
+
+        const today = new Date();
+        const days = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(today);
+            d.setDate(today.getDate() - (6 - i));
+            return d;
+        });
+
+        document.getElementById('weeklyFlow').innerHTML = days.map((d, idx) => {
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const isToday = idx === 6;
+            const mood    = moodMap[dateStr];
+            const emoji   = mood ? MOOD_EMOJI[mood] : null;
+            const label   = isToday ? '오늘' : DAY_LABEL[d.getDay()];
+
+            return `
+                <div class="flex flex-col items-center gap-1.5">
+                    <span class="text-xs font-medium ${isToday ? 'text-mint-600' : 'text-gray-400'}">${label}</span>
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center
+                        ${isToday ? 'ring-2 ring-mint-300 bg-mint-50' : ''}
+                        ${emoji ? 'text-2xl' : 'border-2 border-dashed border-gray-200'}">
+                        ${emoji ?? ''}
+                    </div>
+                </div>`;
+        }).join('');
     }
 
     const token = localStorage.getItem("accessToken");
 
     if (token) {
-        fetch("/api/mypage", { headers: { "Authorization": "Bearer " + token } })
+        const authHeader = { "Authorization": "Bearer " + token };
+
+        fetch("/api/mypage", { headers: authHeader })
             .then(res => {
                 if (!res.ok) throw new Error("인증 실패");
                 return res.text();
@@ -161,15 +219,14 @@
                 document.getElementById("logoutBtn").classList.remove("hidden");
                 document.getElementById("bottomNav").classList.remove("hidden");
 
-                return fetch("/api/mood/today", { headers: { "Authorization": "Bearer " + token } });
+                return Promise.all([
+                    fetch("/api/mood/today", { headers: authHeader }).then(r => r.json()),
+                    fetch("/api/mood/list",  { headers: authHeader }).then(r => r.json())
+                ]);
             })
-            .then(res => {
-                if (!res.ok) throw new Error("mood 조회 실패");
-                return res.json();
-            })
-            .then(data => {
+            .then(([todayData, allRecords]) => {
                 const moodSection = document.getElementById("moodSection");
-                if (data.hasTodayRecord) {
+                if (todayData.hasTodayRecord) {
                     moodSection.innerHTML = `
                         <p class="text-gray-500 text-sm mb-3">오늘의 기분</p>
                         <div class="flex items-center gap-3">
@@ -178,17 +235,17 @@
                                 <p class="text-gray-800 font-medium">오늘 이미 기록했어요!</p>
                                 <a href="/mood/list.html" class="text-mint-600 text-sm hover:underline">기록 확인하기 →</a>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 } else {
                     moodSection.innerHTML = `
                         <p class="text-gray-500 text-sm mb-3">오늘의 기분</p>
                         <a href="/mood/write.html"
                            class="flex items-center justify-center gap-2 bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
                             ✏️ 오늘의 기분 기록하기
-                        </a>
-                    `;
+                        </a>`;
                 }
+
+                renderWeeklyFlow(allRecords);
             })
             .catch(err => {
                 console.error(err);

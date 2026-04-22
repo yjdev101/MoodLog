@@ -1,0 +1,18 @@
+jwt:
+  secret: moodlog-secret-key-2024-abcdefghijklmn
+
+spring:
+  datasource:
+    password: 1234
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: 570e673b977b5235c4cbe532ae2183b9
+            client-secret: cP698RNNMFEUClueh7KpUmEZfYQ7ewK6
+
+claude:
+  api:
+    key: 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

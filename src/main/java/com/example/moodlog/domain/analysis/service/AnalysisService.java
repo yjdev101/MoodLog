@@ -1,4 +1,4 @@
-package com.example.moodlog.service;
+package com.example.moodlog.domain.analysis.service;
 
 import com.example.moodlog.domain.mood.entity.MoodRecord;
 import com.example.moodlog.domain.mood.repository.MoodRecordRepository;
@@ -20,7 +20,6 @@ public class AnalysisService {
     private final ClaudeApiService claudeApiService;
 
     public Map<String, Object> analyze(User user) {
-
         List<MoodRecord> records = moodRecordRepository.findByUser(user);
 
         if (records.isEmpty()) {
@@ -30,7 +29,6 @@ public class AnalysisService {
             return empty;
         }
 
-        // 태그 통계 계산
         Map<String, Map<String, Integer>> tagStats = new LinkedHashMap<>();
         for (MoodRecord record : records) {
             if (record.getTagText() == null || record.getTagText().isBlank()) continue;
@@ -77,23 +75,20 @@ public class AnalysisService {
             return empty;
         }
 
-        // 날짜별 기록 요약 빌드
         StringBuilder prompt = new StringBuilder();
         prompt.append("다음은 사용자의 최근 ").append(period).append("일간 기분 기록입니다.\n\n");
         prompt.append("기분 단계: VERY_GOOD(매우좋음), GOOD(좋음), NORMAL(보통), BAD(나쁨), VERY_BAD(매우나쁨)\n\n");
         prompt.append("날짜별 기록:\n");
-
         records.stream()
-            .sorted((a, b) -> a.getRecordDate().compareTo(b.getRecordDate()))
-            .forEach(r -> {
-                prompt.append("- ").append(r.getRecordDate()).append(" / 기분: ").append(r.getMood().name());
-                if (r.getTagText() != null && !r.getTagText().isBlank())
-                    prompt.append(" / 태그: ").append(r.getTagText());
-                if (r.getMemo() != null && !r.getMemo().isBlank())
-                    prompt.append(" / 메모: ").append(r.getMemo());
-                prompt.append("\n");
-            });
-
+                .sorted((a, b) -> a.getRecordDate().compareTo(b.getRecordDate()))
+                .forEach(r -> {
+                    prompt.append("- ").append(r.getRecordDate()).append(" / 기분: ").append(r.getMood().name());
+                    if (r.getTagText() != null && !r.getTagText().isBlank())
+                        prompt.append(" / 태그: ").append(r.getTagText());
+                    if (r.getMemo() != null && !r.getMemo().isBlank())
+                        prompt.append(" / 메모: ").append(r.getMemo());
+                    prompt.append("\n");
+                });
         prompt.append("\n위 데이터를 바탕으로 다음을 작성해주세요:\n");
         prompt.append("1. 이 기간의 전반적인 감정 흐름 요약 (2~3문장)\n");
         prompt.append("2. 감정에 영향을 준 주요 요인 분석 (태그/메모 기반)\n");

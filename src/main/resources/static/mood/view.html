@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>기록 상세보기 - MoodLog</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>tailwind.config={theme:{extend:{colors:{mint:{50:'#f0fdf8',100:'#ccfbee',200:'#99f6dd',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e'}},fontFamily:{sans:['Noto Sans KR','sans-serif']}}}}</script>
     <style>body{font-family:'Noto Sans KR',sans-serif;}.fade-in{animation:fadeIn 0.5s ease forwards;}@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}</style>
 </head>
-<body class="bg-mint-50 min-h-screen flex flex-col">
+<body class="bg-mint-100 min-h-screen flex flex-col">
 
-    <header class="bg-white shadow-sm sticky top-0 z-10">
+    <header class="bg-white border-b border-mint-200 sticky top-0 z-10">
         <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-mint-50 hover:bg-mint-100 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
+                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
                 <span class="font-bold text-gray-800">기록 상세보기</span>
             </div>
             <div class="flex items-center gap-2">
                 <a id="editLink" href="#" class="text-sm text-mint-600 font-medium hover:underline">수정</a>
-                <a href="/" class="w-9 h-9 rounded-full bg-mint-50 hover:bg-mint-100 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
+                <a href="/" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
             </div>
         </div>
     </header>
@@ -27,20 +27,20 @@
     <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-8 flex flex-col gap-4 fade-in">
 
         <!-- 기분 카드 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-6 flex flex-col items-center gap-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-6 flex flex-col items-center gap-2">
             <p id="moodEmoji" class="text-5xl"></p>
             <p id="mood" class="text-gray-800 font-bold text-xl"></p>
             <p id="date" class="text-gray-400 text-sm"></p>
         </div>
 
         <!-- 메모 카드 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
             <p class="text-gray-400 text-sm mb-2">메모</p>
             <p id="memo" class="text-gray-700 leading-relaxed text-sm"></p>
         </div>
 
         <!-- 태그 카드 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
             <p class="text-gray-400 text-sm mb-3">태그</p>
             <div id="tags" class="flex flex-wrap gap-2"></div>
         </div>
@@ -57,6 +57,7 @@
         </div>
     </nav>
 
+    <script src="/js/auth.js"></script>
     <script>
         const token = localStorage.getItem("accessToken");
         const id = new URLSearchParams(window.location.search).get("id");
@@ -70,7 +71,7 @@
             VERY_BAD:  { label:"매우나쁨",  emoji:"😢" }
         };
 
-        fetch(`/api/mood/view/${id}`, { headers: { "Authorization": "Bearer " + token } })
+        fetchWithAuth(`/api/mood/view/${id}`)
         .then(res => res.json())
         .then(data => {
             const m = moodData[data.mood] || { label: data.mood, emoji:"😐" };

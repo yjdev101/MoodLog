@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 기분 분석 - MoodLog</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>tailwind.config={theme:{extend:{colors:{mint:{50:'#f0fdf8',100:'#ccfbee',200:'#99f6dd',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e'}},fontFamily:{sans:['Noto Sans KR','sans-serif']}}}}</script>
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; }
@@ -17,15 +17,15 @@
         .period-btn.active { background: #14b8a6; color: white; border-color: #14b8a6; }
     </style>
 </head>
-<body class="bg-mint-50 min-h-screen flex flex-col">
+<body class="bg-mint-100 min-h-screen flex flex-col">
 
-    <header class="bg-white shadow-sm sticky top-0 z-10">
+    <header class="bg-white border-b border-mint-200 sticky top-0 z-10">
         <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-mint-50 hover:bg-mint-100 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
+                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
                 <span class="font-bold text-gray-800">AI 기분 분석</span>
             </div>
-            <a href="/" class="w-9 h-9 rounded-full bg-mint-50 hover:bg-mint-100 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
+            <a href="/" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
         </div>
     </header>
 
@@ -46,9 +46,9 @@
             </div>
 
             <div id="resultAnalysis" class="hidden fade-in flex flex-col gap-4">
-                <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+                <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
                     <p class="text-gray-500 text-sm mb-4">📈 태그 통계</p>
-                    <div id="tagStats" class="flex flex-col gap-3"></div>
+                    <div id="tagStats" class="flex flex-wrap gap-2"></div>
                 </div>
                 <div class="bg-gradient-to-br from-mint-50 to-white rounded-2xl border border-mint-200 p-5">
                     <div class="flex items-center gap-3 mb-4">
@@ -58,7 +58,7 @@
                             <p class="text-xs text-gray-400">Claude AI의 감정 패턴 분석</p>
                         </div>
                     </div>
-                    <div class="bg-white rounded-xl border border-mint-100 p-4">
+                    <div class="bg-white rounded-xl border border-mint-200 p-4">
                         <p id="aiComment" class="text-gray-700 leading-loose text-sm"></p>
                     </div>
                 </div>
@@ -115,13 +115,14 @@
     <!-- 하단 네비게이션 -->
     <nav class="bg-white border-t border-gray-100 sticky bottom-0 md:hidden">
         <div class="max-w-2xl mx-auto px-4 py-2 flex justify-around">
-            <a href="/" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">🏠</span><span class="text-xs">홈</span></a>
+            <a href="/" class="flex flex-col items-center gap-1 text-mint-500"><span class="text-xl">🏠</span><span class="text-xs font-medium">홈</span></a>
             <a href="/mood/write.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">✏️</span><span class="text-xs">기록</span></a>
             <a href="/mood/list.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">📋</span><span class="text-xs">목록</span></a>
             <a href="/mypage.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">👤</span><span class="text-xs">마이</span></a>
         </div>
     </nav>
 
+    <script src="/js/auth.js"></script>
     <script>
         const token = localStorage.getItem("accessToken");
         if (!token) { location.href = "/login.html"; }
@@ -208,7 +209,7 @@
         }
 
         // 태그 분석 로드
-        fetch("/api/analysis", { headers: { "Authorization": "Bearer " + token } })
+        fetchWithAuth("/api/analysis")
         .then(res => res.json())
         .then(data => {
             document.getElementById("loadingAnalysis").style.display = "none";
@@ -221,16 +222,28 @@
 
             tagSentiment = calcTagSentiment(tagStats);
 
+            // 긍정 → 중립 → 부정 순 정렬
+            const SENTIMENT_ORDER = { pos: 0, neu: 1, neg: 2 };
+            const tagList = Object.entries(tagStats).map(([tag, counts]) => {
+                const total = Object.values(counts).reduce((s, c) => s + c, 0);
+                const sentiment = tagSentiment[tag] || 'neu';
+                return { tag, total, sentiment };
+            });
+            tagList.sort((a, b) => SENTIMENT_ORDER[a.sentiment] - SENTIMENT_ORDER[b.sentiment] || b.total - a.total);
+
+            const BADGE_STYLE = {
+                pos: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+                neg: 'bg-red-100 text-red-600 border border-red-200',
+                neu: 'bg-amber-100 text-amber-700 border border-amber-200',
+            };
+
             const tagStatsDiv = document.getElementById("tagStats");
-            for (const [tag, moodCounts] of Object.entries(tagStats)) {
-                const div = document.createElement("div");
-                div.className = "flex flex-col gap-1";
-                div.innerHTML = `
-                    <p class="text-sm font-medium text-gray-700"><span class="${TAG_STYLE[tagSentiment[tag] || 'neu']}"># ${tag}</span></p>
-                    <p class="text-xs text-gray-400">${Object.entries(moodCounts).map(([m,c]) => `${moodLabel(m)} ${c}회`).join(" · ")}</p>
-                `;
-                tagStatsDiv.appendChild(div);
-            }
+            tagList.forEach(({ tag, total, sentiment }) => {
+                const badge = document.createElement("span");
+                badge.className = `${BADGE_STYLE[sentiment]} text-sm font-medium px-3 py-1.5 rounded-full`;
+                badge.textContent = `# ${tag} · ${total}회`;
+                tagStatsDiv.appendChild(badge);
+            });
 
             document.getElementById("aiComment").innerHTML = highlightTags(aiComment);
             document.getElementById("resultAnalysis").style.display = "flex";
@@ -253,7 +266,7 @@
             document.getElementById("emptyCoaching").classList.add("hidden");
             document.getElementById("loadingCoaching").style.display = "flex";
 
-            fetch(`/api/analysis/coaching?period=${period}`, { headers: { "Authorization": "Bearer " + token } })
+            fetchWithAuth(`/api/analysis/coaching?period=${period}`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById("loadingCoaching").style.display = "none";

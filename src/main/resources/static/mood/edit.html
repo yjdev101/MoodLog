@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>기록 수정 - MoodLog</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>tailwind.config={theme:{extend:{colors:{mint:{50:'#f0fdf8',100:'#ccfbee',200:'#99f6dd',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e'}},fontFamily:{sans:['Noto Sans KR','sans-serif']}}}}</script>
     <style>body{font-family:'Noto Sans KR',sans-serif;}.fade-in{animation:fadeIn 0.5s ease forwards;}@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}} input[type="radio"]:checked+label{border-color:#14b8a6;background-color:#f0fdf8;color:#0f766e;}</style>
 </head>
-<body class="bg-mint-50 min-h-screen flex flex-col">
+<body class="bg-mint-100 min-h-screen flex flex-col">
 
-    <header class="bg-white shadow-sm sticky top-0 z-10">
+    <header class="bg-white border-b border-mint-200 sticky top-0 z-10">
         <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-mint-50 hover:bg-mint-100 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
+                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
                 <span class="font-bold text-gray-800">기록 수정</span>
             </div>
-            <a href="/" class="w-9 h-9 rounded-full bg-mint-50 hover:bg-mint-100 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
+            <a href="/" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
         </div>
     </header>
 
     <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-8 flex flex-col gap-5 fade-in">
 
         <!-- 기분 선택 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
             <p class="text-gray-500 text-sm mb-4">기분을 수정해주세요</p>
             <div class="grid grid-cols-5 gap-2">
                 <div class="flex flex-col items-center gap-1">
@@ -58,17 +58,18 @@
                     </label>
                 </div>
             </div>
+            <p id="moodError" class="hidden text-red-400 text-xs mt-2 text-center">기분을 선택해주세요.</p>
         </div>
 
         <!-- 메모 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
             <p class="text-gray-500 text-sm mb-3">메모</p>
             <textarea id="memo" rows="3"
                 class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition resize-none"></textarea>
         </div>
 
         <!-- 태그 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
             <p class="text-gray-500 text-sm mb-3">태그</p>
             <input type="text" id="tagText"
                 class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"/>
@@ -79,19 +80,20 @@
         <button onclick="submitEdit()" class="w-full bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
             수정 완료
         </button>
+        <p id="submitError" class="hidden text-red-400 text-xs text-center">수정에 실패했습니다. 다시 시도해주세요.</p>
         <a id="cancelLink" href="/mood/list.html" class="w-full text-center text-sm text-gray-400 hover:text-gray-600 py-2">취소</a>
 
     </main>
 
+    <script src="/js/auth.js"></script>
     <script>
         const token = localStorage.getItem("accessToken");
         const id = new URLSearchParams(window.location.search).get("id");
         if (!token) { location.href = "/login.html"; }
 
-        document.getElementById("backLink").href = `/mood/view.html?id=${id}`;
         document.getElementById("cancelLink").href = `/mood/view.html?id=${id}`;
 
-        fetch(`/api/mood/view/${id}`, { headers: { "Authorization": "Bearer " + token } })
+        fetchWithAuth(`/api/mood/view/${id}`)
         .then(res => res.json())
         .then(data => {
             const radio = document.querySelector(`input[name="mood"][value="${data.mood}"]`);
@@ -102,16 +104,18 @@
 
         function submitEdit() {
             const selectedMood = document.querySelector('input[name="mood"]:checked');
-            if (!selectedMood) { alert("기분을 선택해주세요!"); return; }
+            const moodError = document.getElementById("moodError");
+            if (!selectedMood) { moodError.classList.remove("hidden"); return; }
+            moodError.classList.add("hidden");
 
-            fetch(`/api/mood/edit/${id}`, {
+            fetchWithAuth(`/api/mood/edit/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ mood: selectedMood.value, memo: document.getElementById("memo").value, tagText: document.getElementById("tagText").value })
             })
             .then(res => { if (!res.ok) throw new Error("수정 실패"); return res.json(); })
             .then(() => { location.href = `/mood/view.html?id=${id}`; })
-            .catch(() => { alert("수정에 실패했습니다. 다시 시도해주세요."); });
+            .catch(() => { document.getElementById("submitError").classList.remove("hidden"); });
         }
     </script>
 </body>

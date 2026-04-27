@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 기분 기록 - MoodLog</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>tailwind.config={theme:{extend:{colors:{mint:{50:'#f0fdf8',100:'#ccfbee',200:'#99f6dd',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e'}},fontFamily:{sans:['Noto Sans KR','sans-serif']}}}}</script>
     <style>body{font-family:'Noto Sans KR',sans-serif;}.fade-in{animation:fadeIn 0.5s ease forwards;}@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}} input[type="radio"]:checked+label{border-color:#14b8a6;background-color:#f0fdf8;color:#0f766e;}</style>
 </head>
-<body class="bg-mint-50 min-h-screen flex flex-col">
+<body class="bg-mint-100 min-h-screen flex flex-col">
 
-    <header class="bg-white shadow-sm sticky top-0 z-10">
-        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <a href="/" class="text-gray-400 hover:text-mint-500">‹</a>
-            <span class="font-bold text-gray-800">오늘의 기분 기록</span>
+    <header class="bg-white border-b border-mint-200 sticky top-0 z-10">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">⬅</a>
+                <span class="font-bold text-gray-800">오늘의 기분 기록</span>
+            </div>
+            <a href="/" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
         </div>
     </header>
 
@@ -24,7 +27,7 @@
         <div id="writeSection" class="hidden fade-in flex flex-col gap-5">
 
             <!-- 기분 선택 -->
-            <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+            <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
                 <p class="text-gray-500 text-sm mb-4">오늘 기분이 어떠세요?</p>
                 <div class="grid grid-cols-5 gap-2">
                     <div class="flex flex-col items-center gap-1">
@@ -67,14 +70,14 @@
             </div>
 
             <!-- 메모 -->
-            <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+            <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
                 <p class="text-gray-500 text-sm mb-3">메모 <span class="text-gray-300">(선택)</span></p>
                 <textarea id="memo" rows="3" placeholder="오늘 있었던 일을 자유롭게 적어보세요"
                     class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition resize-none"></textarea>
             </div>
 
             <!-- 태그 -->
-            <div class="bg-white rounded-2xl shadow-sm border border-mint-100 p-5">
+            <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
                 <p class="text-gray-500 text-sm mb-3">태그 <span class="text-gray-300">(선택)</span></p>
                 <input type="text" id="tagText" placeholder="예: 야근, 커피, 운동"
                     class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"/>
@@ -85,6 +88,7 @@
             <button onclick="submitMood()" class="w-full bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
                 기록하기
             </button>
+            <p id="submitError" class="hidden text-red-400 text-xs text-center">기록에 실패했습니다. 다시 시도해주세요.</p>
             <a href="/" class="w-full text-center text-sm text-gray-400 hover:text-gray-600 py-2">취소</a>
 
         </div>
@@ -99,11 +103,21 @@
 
     </main>
 
+    <nav class="bg-white border-t border-gray-100 sticky bottom-0 md:hidden">
+        <div class="max-w-2xl mx-auto px-4 py-2 flex justify-around">
+            <a href="/" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">🏠</span><span class="text-xs">홈</span></a>
+            <a href="/mood/write.html" class="flex flex-col items-center gap-1 text-mint-500"><span class="text-xl">✏️</span><span class="text-xs font-medium">기록</span></a>
+            <a href="/mood/list.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">📋</span><span class="text-xs">목록</span></a>
+            <a href="/mypage.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">👤</span><span class="text-xs">마이</span></a>
+        </div>
+    </nav>
+
+    <script src="/js/auth.js"></script>
     <script>
         const token = localStorage.getItem("accessToken");
         if (!token) { location.href = "/login.html"; }
 
-        fetch("/api/mood/today", { headers: { "Authorization": "Bearer " + token } })
+        fetchWithAuth("/api/mood/today")
         .then(res => res.json())
         .then(data => {
             if (data.hasTodayRecord) {
@@ -123,14 +137,14 @@
             const memo = document.getElementById("memo").value;
             const tagText = document.getElementById("tagText").value;
 
-            fetch("/api/mood/write", {
+            fetchWithAuth("/api/mood/write", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ mood, memo, tagText })
             })
             .then(res => { if (!res.ok) throw new Error("기록 실패"); return res.json(); })
             .then(() => { location.href = "/"; })
-            .catch(() => { alert("기록에 실패했습니다. 다시 시도해주세요."); });
+            .catch(() => { document.getElementById("submitError").classList.remove("hidden"); });
         }
     </script>
 </body>

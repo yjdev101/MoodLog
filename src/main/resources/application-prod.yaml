@@ -1,3 +1,6 @@
+app:
+  base-url: https://your-domain.com  # 배포 시 실제 도메인으로 변경
+
 spring:
   jpa:
     hibernate:

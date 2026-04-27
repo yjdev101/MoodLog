@@ -10,10 +10,13 @@ import com.example.moodlog.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +28,12 @@ public class UserApiController {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final BlacklistedTokenService blacklistedTokenService;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id:}")
+    private String kakaoClientId;
+
+    @Value("${app.base-url:http://localhost:9090}")
+    private String baseUrl;
 
     private User getUser(Authentication authentication) {
         Long id = Long.parseLong(authentication.getName());
@@ -50,20 +59,24 @@ public class UserApiController {
             try {
                 String jti = jwtTokenProvider.getJti(token);
                 blacklistedTokenService.blacklist(jti, jwtTokenProvider.getExpiration(token));
-            } catch (Exception ignored) {
-                // 이미 만료된 토큰이면 블랙리스트 불필요
-            }
+            } catch (Exception ignored) {}
         }
+
+        String redirectUrl = "/login.html";
         if (authentication != null) {
             User user = getUser(authentication);
             refreshTokenService.deleteByUser(user);
+            if ("kakao".equals(user.getProvider()) && !kakaoClientId.isBlank()) {
+                redirectUrl = "https://kauth.kakao.com/oauth/logout?client_id=" + kakaoClientId
+                        + "&logout_redirect_uri=" + baseUrl + "/";
+            }
         }
+
         SecurityContextHolder.clearContext();
         jakarta.servlet.http.HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-        return ResponseEntity.ok().build();
+        if (session != null) session.invalidate();
+
+        return ResponseEntity.ok(Map.of("redirectUrl", redirectUrl));
     }
 
     @GetMapping("/mypage")

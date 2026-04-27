@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>감정 기록 목록 - MoodLog</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -54,15 +54,15 @@
         .tab-btn.active { background: white; color: #0f766e; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
     </style>
 </head>
-<body class="bg-mint-50 min-h-screen flex flex-col">
+<body class="bg-mint-100 min-h-screen flex flex-col">
 
-    <header class="bg-white shadow-sm sticky top-0 z-10">
+    <header class="bg-white border-b border-mint-200 sticky top-0 z-10">
         <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-mint-50 hover:bg-mint-100 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
+                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
                 <span class="font-bold text-gray-800">감정 기록 목록</span>
             </div>
-            <a href="/" class="w-9 h-9 rounded-full bg-mint-50 hover:bg-mint-100 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
+            <a href="/" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
         </div>
     </header>
 
@@ -78,7 +78,7 @@
         <div id="view-list" class="fade-in">
 
             <!-- 통계 카드 추가 -->
-            <div id="statsCard" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3 hidden">
+            <div id="statsCard" class="bg-white rounded-2xl shadow-sm border border-mint-200 p-4 mb-3 hidden">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs text-gray-400">이번 달 통계</span>
                     <span class="text-xs font-medium text-gray-600">총 <span id="totalCount">0</span>건</span>
@@ -162,6 +162,7 @@
         </div>
     </nav>
 
+    <script src="/js/auth.js"></script>
     <script>
         const token = localStorage.getItem("accessToken");
         if (!token) { location.href = "/login.html"; }
@@ -200,7 +201,7 @@
         calMonth = today.getMonth(); // 0-indexed
 
         // 통계 API 호출
-        fetch("/api/analysis/stats/monthly", { headers: { "Authorization": "Bearer " + token } })
+        fetchWithAuth("/api/analysis/stats/monthly")
         .then(res => res.json())
         .then(stats => {
             document.getElementById("totalCount").textContent = stats.totalCount;
@@ -212,7 +213,7 @@
             document.getElementById("statsCard").classList.remove("hidden");
         });
 
-        fetch("/api/mood/list", { headers: { "Authorization": "Bearer " + token } })
+        fetchWithAuth("/api/mood/list")
         .then(res => res.json())
         .then(data => {
             allRecords = data;

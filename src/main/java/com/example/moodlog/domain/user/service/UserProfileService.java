@@ -5,6 +5,7 @@ import com.example.moodlog.domain.user.entity.UserProfile;
 import com.example.moodlog.domain.user.repository.UserProfileRepository;
 import com.example.moodlog.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +15,9 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserProfileService {
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
@@ -49,7 +53,7 @@ public class UserProfileService {
 
         if (imageFile != null && !imageFile.isEmpty()) {
             String fileName = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename();
-            String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/upload/";
+            String uploadDir = uploadPath + "/";
             String savePath = uploadDir + fileName;
 
             try {

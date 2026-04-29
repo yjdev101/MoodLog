@@ -69,6 +69,9 @@ server:
       enabled: true
       force: true
 
+upload:
+  path: ${user.dir}/src/main/resources/static/upload
+
 logging:
   level:
     org.springframework.security: DEBUG

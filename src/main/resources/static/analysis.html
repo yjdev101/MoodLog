@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 기분 분석 - MoodLog</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>tailwind.config={theme:{extend:{colors:{mint:{50:'#f0fdf8',100:'#ccfbee',200:'#99f6dd',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e'}},fontFamily:{sans:['Noto Sans KR','sans-serif']}}}}</script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-btn { flex: 1; text-align: center; padding: 7px 0; font-size: 14px; border-radius: 8px; cursor: pointer; color: #9ca3af; transition: all 0.15s; }
+        .tab-btn.active { background: white; color: #0f766e; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .period-btn { padding: 5px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid #d1fae5; color: #0f766e; background: white; transition: all 0.15s; }
+        .period-btn.active { background: #14b8a6; color: white; border-color: #14b8a6; }
+    </style>
+</head>
+<body class="bg-mint-100 min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-mint-200 sticky top-0 z-10">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button onclick="history.back()" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">⬅</button>
+                <span class="font-bold text-gray-800">AI 기분 분석</span>
+            </div>
+            <a href="/" class="w-9 h-9 rounded-full bg-white hover:bg-mint-50 flex items-center justify-center text-mint-600 transition-colors">🏠</a>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-4 flex flex-col gap-4">
+
+        <!-- 탭 전환 -->
+        <div class="flex bg-gray-100 rounded-xl p-1 gap-1">
+            <div class="tab-btn active" id="tab-analysis" onclick="switchTab('analysis')">태그 분석</div>
+            <div class="tab-btn" id="tab-coaching" onclick="switchTab('coaching')">감정 코칭</div>
+        </div>
+
+        <!-- ===== 태그 분석 탭 ===== -->
+        <div id="view-analysis" class="flex flex-col gap-4">
+
+            <div id="loadingAnalysis" class="flex flex-col items-center justify-center py-16 gap-3">
+                <div class="text-4xl animate-spin">🤖</div>
+                <p class="text-gray-400 text-sm">분석 중입니다... 잠시만 기다려주세요</p>
+            </div>
+
+            <div id="resultAnalysis" class="hidden fade-in flex flex-col gap-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-5">
+                    <p class="text-gray-500 text-sm mb-4">📈 태그 통계</p>
+                    <div id="tagStats" class="flex flex-wrap gap-2"></div>
+                </div>
+                <div class="bg-gradient-to-br from-mint-50 to-white rounded-2xl border border-mint-200 p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-11 h-11 rounded-full bg-mint-500 flex items-center justify-center text-xl shrink-0">🤖</div>
+                        <div>
+                            <p class="text-sm font-semibold text-mint-700">AI 분석 코멘트</p>
+                            <p class="text-xs text-gray-400">Claude AI의 감정 패턴 분석</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-mint-200 p-4">
+                        <p id="aiComment" class="text-gray-700 leading-loose text-sm"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="emptyAnalysis" class="hidden fade-in flex flex-col items-center justify-center py-16 gap-4 text-center">
+                <span class="text-5xl">📭</span>
+                <p class="text-gray-400 text-sm">아직 기록이 없어요.<br>기분을 기록해보세요!</p>
+                <a href="/mood/write.html" class="bg-mint-500 text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-mint-600 transition-colors">기록하기</a>
+            </div>
+        </div>
+
+        <!-- ===== 감정 코칭 탭 ===== -->
+        <div id="view-coaching" class="hidden flex flex-col gap-4">
+
+            <!-- 기간 선택 -->
+            <div class="flex gap-2">
+                <button class="period-btn active" id="btn-7" onclick="loadCoaching(7)">최근 7일</button>
+                <button class="period-btn" id="btn-30" onclick="loadCoaching(30)">최근 30일</button>
+            </div>
+
+            <div id="loadingCoaching" class="hidden flex flex-col items-center justify-center py-16 gap-3">
+                <div class="text-4xl animate-spin">🤖</div>
+                <p class="text-gray-400 text-sm">코칭 중입니다... 잠시만 기다려주세요</p>
+            </div>
+
+            <div id="resultCoaching" class="hidden fade-in flex flex-col gap-3">
+                <!-- 헤더 -->
+                <div class="bg-gradient-to-br from-mint-50 to-white rounded-2xl border border-mint-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-mint-500 flex items-center justify-center text-lg shrink-0">🧠</div>
+                            <div>
+                                <p class="text-sm font-semibold text-mint-700">감정 코칭 리포트</p>
+                                <p class="text-xs text-gray-400">기간별 맞춤 감정 조언</p>
+                            </div>
+                        </div>
+                        <span id="coachingMeta" class="text-xs text-mint-600 bg-mint-100 px-2.5 py-1 rounded-full font-medium"></span>
+                    </div>
+                </div>
+                <!-- 인사이트 카드 (JS로 채워짐) -->
+                <div id="coachingCards" class="flex flex-col gap-3"></div>
+            </div>
+
+            <div id="emptyCoaching" class="hidden fade-in flex flex-col items-center justify-center py-16 gap-4 text-center">
+                <span class="text-5xl">📭</span>
+                <p class="text-gray-400 text-sm">해당 기간에 기록이 없어요.<br>기분을 기록해보세요!</p>
+                <a href="/mood/write.html" class="bg-mint-500 text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-mint-600 transition-colors">기록하기</a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 하단 네비게이션 -->
+    <nav class="bg-white border-t border-gray-100 sticky bottom-0 md:hidden">
+        <div class="max-w-2xl mx-auto px-4 py-2 flex justify-around">
+            <a href="/" class="flex flex-col items-center gap-1 text-mint-500"><span class="text-xl">🏠</span><span class="text-xs font-medium">홈</span></a>
+            <a href="/mood/write.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">✏️</span><span class="text-xs">기록</span></a>
+            <a href="/mood/list.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">📋</span><span class="text-xs">목록</span></a>
+            <a href="/mypage.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors"><span class="text-xl">👤</span><span class="text-xs">마이</span></a>
+        </div>
+    </nav>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        const token = localStorage.getItem("accessToken");
+        if (!token) { location.href = "/login.html"; }
+
+        const moodLabel = m => ({ VERY_GOOD:"😄 매우좋음", GOOD:"🙂 좋음", NORMAL:"😐 보통", BAD:"😕 나쁨", VERY_BAD:"😢 매우나쁨" }[m] || m);
+
+        const COACHING_CARDS = [
+            { label: '감정 흐름 요약', icon: '📈', iconBg: 'bg-mint-100',   labelColor: 'text-mint-600',   border: 'border-l-4 border-mint-400'   },
+            { label: '주요 요인 분석', icon: '🔍', iconBg: 'bg-amber-100',  labelColor: 'text-amber-600',  border: 'border-l-4 border-amber-400'  },
+            { label: '맞춤 조언',     icon: '💡', iconBg: 'bg-violet-100', labelColor: 'text-violet-600', border: 'border-l-4 border-violet-400' },
+        ];
+
+        // 태그 감정 성향 계산 및 하이라이트
+        let tagSentiment = {};
+
+        function calcTagSentiment(tagStats) {
+            const result = {};
+            for (const [tag, counts] of Object.entries(tagStats)) {
+                const pos = (counts.VERY_GOOD || 0) + (counts.GOOD || 0);
+                const neg = (counts.BAD || 0) + (counts.VERY_BAD || 0);
+                const total = pos + neg + (counts.NORMAL || 0);
+                if (total === 0) { result[tag] = 'neu'; continue; }
+                if (pos / total > 0.6)      result[tag] = 'pos';
+                else if (neg / total > 0.6) result[tag] = 'neg';
+                else                        result[tag] = 'neu';
+            }
+            return result;
+        }
+
+        const TAG_STYLE = {
+            pos: 'bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-semibold',
+            neg: 'bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold',
+            neu: 'bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-semibold',
+        };
+
+        function highlightTags(text) {
+            const tags = Object.keys(tagSentiment).sort((a, b) => b.length - a.length);
+            if (!tags.length) return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const pattern = new RegExp(tags.map(t => t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'), 'g');
+            return escaped.replace(pattern, m => `<span class="${TAG_STYLE[tagSentiment[m] || 'neu']}">${m}</span>`);
+        }
+
+        function parseCoachingSections(text) {
+            // "1. " "2. " "3. " 기준으로 분리
+            const parts = text.split(/\n*\d+\.\s+/).filter(s => s.trim());
+            if (parts.length >= 3) return parts.slice(0, 3).map(s => s.trim());
+            // 빈 줄 기준으로 분리
+            const paragraphs = text.split(/\n\n+/).filter(s => s.trim());
+            if (paragraphs.length >= 3) return paragraphs.slice(0, 3).map(s => s.trim());
+            return [text.trim(), null, null];
+        }
+
+        function renderCoachingCards(text) {
+            const sections = parseCoachingSections(text);
+            const container = document.getElementById('coachingCards');
+            container.innerHTML = '';
+            COACHING_CARDS.forEach((cfg, i) => {
+                if (!sections[i]) return;
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-xl border border-gray-100 ${cfg.border} p-4 flex gap-3 shadow-sm`;
+                card.innerHTML = `
+                    <div class="w-9 h-9 rounded-lg ${cfg.iconBg} flex items-center justify-center text-lg shrink-0">${cfg.icon}</div>
+                    <div>
+                        <p class="text-xs font-semibold ${cfg.labelColor} mb-1.5">${cfg.label}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">${highlightTags(sections[i])}</p>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        // 탭 전환
+        function switchTab(tab) {
+            const isAnalysis = tab === 'analysis';
+            document.getElementById("tab-analysis").classList.toggle("active", isAnalysis);
+            document.getElementById("tab-coaching").classList.toggle("active", !isAnalysis);
+            document.getElementById("view-analysis").classList.toggle("hidden", !isAnalysis);
+            document.getElementById("view-coaching").classList.toggle("hidden", isAnalysis);
+
+            if (!isAnalysis && document.getElementById("resultCoaching").classList.contains("hidden")
+                            && document.getElementById("emptyCoaching").classList.contains("hidden")) {
+                loadCoaching(7);
+            }
+        }
+
+        // 태그 분석 로드
+        fetchWithAuth("/api/analysis")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("loadingAnalysis").style.display = "none";
+            const { tagStats, aiComment } = data;
+
+            if (Object.keys(tagStats).length === 0) {
+                document.getElementById("emptyAnalysis").style.display = "flex";
+                return;
+            }
+
+            tagSentiment = calcTagSentiment(tagStats);
+
+            // 긍정 → 중립 → 부정 순 정렬
+            const SENTIMENT_ORDER = { pos: 0, neu: 1, neg: 2 };
+            const tagList = Object.entries(tagStats).map(([tag, counts]) => {
+                const total = Object.values(counts).reduce((s, c) => s + c, 0);
+                const sentiment = tagSentiment[tag] || 'neu';
+                return { tag, total, sentiment };
+            });
+            tagList.sort((a, b) => SENTIMENT_ORDER[a.sentiment] - SENTIMENT_ORDER[b.sentiment] || b.total - a.total);
+
+            const BADGE_STYLE = {
+                pos: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+                neg: 'bg-red-100 text-red-600 border border-red-200',
+                neu: 'bg-amber-100 text-amber-700 border border-amber-200',
+            };
+
+            const tagStatsDiv = document.getElementById("tagStats");
+            tagList.forEach(({ tag, total, sentiment }) => {
+                const badge = document.createElement("span");
+                badge.className = `${BADGE_STYLE[sentiment]} text-sm font-medium px-3 py-1.5 rounded-full`;
+                badge.textContent = `# ${tag} · ${total}회`;
+                tagStatsDiv.appendChild(badge);
+            });
+
+            document.getElementById("aiComment").innerHTML = highlightTags(aiComment);
+            document.getElementById("resultAnalysis").style.display = "flex";
+        })
+        .catch(() => {
+            document.getElementById("loadingAnalysis").style.display = "none";
+            document.getElementById("emptyAnalysis").style.display = "flex";
+        });
+
+        // 감정 코칭 로드
+        let coachingLoaded = {};
+        function loadCoaching(period) {
+            // 버튼 활성화
+            document.getElementById("btn-7").classList.toggle("active", period === 7);
+            document.getElementById("btn-30").classList.toggle("active", period === 30);
+
+            if (coachingLoaded[period]) return; // 이미 로드된 기간은 재요청 안 함
+
+            document.getElementById("resultCoaching").classList.add("hidden");
+            document.getElementById("emptyCoaching").classList.add("hidden");
+            document.getElementById("loadingCoaching").style.display = "flex";
+
+            fetchWithAuth(`/api/analysis/coaching?period=${period}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("loadingCoaching").style.display = "none";
+                const { coaching, recordCount } = data;
+
+                if (!coaching || coaching.includes("기록이 없어요")) {
+                    document.getElementById("emptyCoaching").style.display = "flex";
+                    return;
+                }
+
+                document.getElementById("coachingMeta").textContent = `${period}일간 ${recordCount}건의 기록`;
+                renderCoachingCards(coaching);
+                document.getElementById("resultCoaching").style.display = "flex";
+                coachingLoaded[period] = true;
+            })
+            .catch(() => {
+                document.getElementById("loadingCoaching").style.display = "none";
+                document.getElementById("emptyCoaching").style.display = "flex";
+            });
+        }
+    </script>
+</body>
+</html>

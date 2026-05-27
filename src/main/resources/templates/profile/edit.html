@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>프로필 수정</title>
+</head>
+<body>
+<h2>프로필 수정</h2>
+
+<form method="post" enctype="multipart/form-data">
+
+    <input type="text" name="nickname" placeholder="닉네임">
+    <br><br>
+
+    <input type="text" name="bio" placeholder="소개글">
+    <br><br>
+
+    <input type="file" name="imageFile"> <!-- ⭐ 핵심 -->
+    <br><br>
+
+    <button type="submit">저장</button>
+
+</form>
+
+</body>
+</html>

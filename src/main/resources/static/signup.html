@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - MoodLog</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mint: {
+                            50:  '#f0fdf8',
+                            100: '#ccfbee',
+                            200: '#99f6dd',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-mint-100 min-h-screen flex flex-col items-center justify-center px-4">
+
+<div class="w-full max-w-sm fade-in flex flex-col gap-6">
+
+    <!-- 로고 -->
+    <div class="text-center">
+        <div class="w-14 h-14 rounded-2xl bg-mint-500 flex items-center justify-center text-2xl mx-auto mb-3">
+            🌿
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800">회원가입</h1>
+        <p class="text-mint-600 font-medium mt-1">MoodLog와 함께 감정을 기록해보세요</p>
+    </div>
+
+    <!-- 회원가입 카드 -->
+    <div class="bg-white rounded-2xl shadow-sm border border-mint-200 p-6 flex flex-col gap-4">
+
+        <!-- 이메일 -->
+        <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-gray-700">이메일</label>
+            <input
+                    type="email"
+                    id="email"
+                    placeholder="example@email.com"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"
+                    oninput="validateEmail()"
+            />
+            <p id="emailError" class="hidden text-red-400 text-xs">올바른 이메일 형식을 입력해주세요.</p>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-gray-700">비밀번호</label>
+            <input
+                    type="password"
+                    id="password"
+                    placeholder="비밀번호를 입력하세요"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"
+                    oninput="validatePassword()"
+            />
+            <p id="passwordError" class="hidden text-red-400 text-xs">비밀번호를 입력해주세요.</p>
+        </div>
+
+        <!-- 닉네임 -->
+        <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-gray-700">닉네임</label>
+            <input
+                    type="text"
+                    id="nickname"
+                    placeholder="닉네임을 입력하세요"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-mint-400 focus:ring-2 focus:ring-mint-100 transition"
+                    oninput="validateNickname()"
+                    onkeydown="if(event.key==='Enter') signup()"
+            />
+            <p id="nicknameError" class="hidden text-red-400 text-xs">닉네임을 입력해주세요.</p>
+        </div>
+
+        <!-- 공통 에러 메시지 -->
+        <p id="serverError" class="hidden text-red-400 text-xs text-center"></p>
+
+        <!-- 회원가입 버튼 -->
+        <button
+                onclick="signup()"
+                class="w-full bg-mint-500 hover:bg-mint-600 active:bg-mint-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
+            회원가입
+        </button>
+    </div>
+
+    <!-- 로그인 링크 -->
+    <p class="text-center text-sm text-gray-400">
+        이미 계정이 있으신가요?
+        <a href="/login.html" class="text-mint-600 font-medium hover:underline ml-1">로그인</a>
+    </p>
+
+</div>
+
+<script>
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function validateEmail() {
+        const email = document.getElementById("email").value;
+        const error = document.getElementById("emailError");
+        if (email && !emailRegex.test(email)) {
+            error.classList.remove("hidden");
+            return false;
+        }
+        error.classList.add("hidden");
+        return true;
+    }
+
+function validatePassword() {
+    const password = document.getElementById("password").value;
+    const error = document.getElementById("passwordError");
+
+    const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,20}$/;
+
+    if (!password) {
+        error.textContent = "비밀번호를 입력해주세요.";
+        error.classList.remove("hidden");
+        return false;
+    }
+    if (password.length < 8 || password.length > 20) {
+        error.textContent = "비밀번호는 8자 이상 20자 이하여야 합니다.";
+        error.classList.remove("hidden");
+        return false;
+    }
+    if (!regex.test(password)) {
+        error.textContent = "영문, 숫자, 특수문자를 모두 포함해야 합니다.";
+        error.classList.remove("hidden");
+        return false;
+    }
+
+    error.classList.add("hidden");
+    return true;
+}
+
+function validateNickname() {
+    const nickname = document.getElementById("nickname").value;
+    const error = document.getElementById("nicknameError");
+
+    if (!nickname) {
+        error.textContent = "닉네임을 입력해주세요.";
+        error.classList.remove("hidden");
+        return false;
+    }
+    if (nickname.length < 2 || nickname.length > 10) {
+        error.textContent = "닉네임은 2자 이상 10자 이하여야 합니다.";
+        error.classList.remove("hidden");
+        return false;
+    }
+
+    error.classList.add("hidden");
+    return true;
+}
+
+    function signup() {
+        const isEmailValid = validateEmail();
+        const isPasswordValid = validatePassword();
+        const isNicknameValid = validateNickname();
+
+        if (!isEmailValid || !isPasswordValid || !isNicknameValid) return;
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const nickname = document.getElementById("nickname").value;
+        const serverError = document.getElementById("serverError");
+
+        serverError.classList.add("hidden");
+
+        fetch("/api/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, nickname })
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(err => { throw new Error(err.message || "회원가입 실패") });
+            return res.text();
+        })
+        .then(() => {
+            location.href = "/login.html";
+        })
+        .catch(err => {
+            serverError.textContent = err.message;
+            serverError.classList.remove("hidden");
+        });
+    }
+</script>
+</body>
+</html>

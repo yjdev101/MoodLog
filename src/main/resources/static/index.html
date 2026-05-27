@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodLog 메인</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mint: {
+                            50:  '#f0fdf8',
+                            100: '#ccfbee',
+                            200: '#99f6dd',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-mint-100 min-h-screen flex flex-col">
+
+<!-- 헤더 -->
+<header class="bg-white border-b border-mint-200 sticky top-0 z-10">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-mint-500 flex items-center justify-center text-white text-base">
+                🌿
+            </div>
+            <span class="font-bold text-gray-800 text-lg tracking-tight">MoodLog</span>
+        </div>
+        <button id="logoutBtn"
+                class="hidden text-sm text-red-400 border border-red-300 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors px-3 py-1 rounded-full">
+            로그아웃
+        </button>
+    </div>
+</header>
+
+<!-- 메인 콘텐츠 -->
+<main class="flex-1 max-w-2xl w-full mx-auto px-4 py-8 flex flex-col gap-5">
+
+    <!-- 로그인 상태 -->
+    <div id="userSection" class="hidden fade-in flex flex-col gap-5">
+
+        <!-- 인사 카드 -->
+        <div class="bg-white rounded-2xl shadow-sm p-5 border border-mint-200">
+            <p class="text-gray-500 text-sm mb-1">안녕하세요 👋</p>
+            <p class="text-gray-800 text-xl font-bold">
+                <span id="nickname"></span>님
+            </p>
+            <p class="text-gray-400 text-sm mt-1">오늘 하루는 어떠셨나요?</p>
+        </div>
+
+        <!-- 오늘 기분 카드 -->
+        <div id="moodSection" class="bg-white rounded-2xl shadow-sm p-5 border border-mint-200">
+            <!-- JS로 채워짐 -->
+        </div>
+
+        <!-- 이번 주 감정 흐름 -->
+        <div class="bg-white rounded-2xl shadow-sm p-5 border border-mint-200">
+            <p class="text-gray-500 text-sm mb-4">이번 주 감정 흐름</p>
+            <div id="weeklyFlow" class="flex justify-between">
+                <!-- JS로 채워짐 -->
+            </div>
+        </div>
+
+        <!-- 메뉴 카드 -->
+        <div class="grid grid-cols-2 gap-3">
+            <a href="/mypage.html"
+               class="bg-white rounded-2xl shadow-sm p-4 border border-mint-200 flex flex-col items-center gap-2 hover:border-mint-400 transition-colors">
+                <span class="text-2xl">👤</span>
+                <span class="text-sm font-medium text-gray-700">마이페이지</span>
+            </a>
+            <a href="/analysis.html"
+               class="bg-white rounded-2xl shadow-sm p-4 border border-mint-200 flex flex-col items-center gap-2 hover:border-mint-400 transition-colors">
+                <span class="text-2xl">📊</span>
+                <span class="text-sm font-medium text-gray-700">AI 기분 분석</span>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- 비로그인 상태 -->
+    <div id="guestSection" class="hidden fade-in flex flex-col items-center justify-center gap-6 py-16">
+        <div class="text-center">
+            <div class="text-5xl mb-4">🌿</div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">MoodLog</h2>
+            <p class="text-mint-600 font-medium">오늘의 감정을 기록해보세요</p>
+        </div>
+        <div class="flex flex-col w-full gap-3">
+            <a href="/login.html"
+               class="w-full bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl text-center transition-colors text-sm">
+                로그인
+            </a>
+            <a href="/signup.html"
+               class="w-full bg-white border border-mint-300 hover:border-mint-500 text-mint-600 font-semibold py-3 rounded-xl text-center transition-colors text-sm">
+                회원가입
+            </a>
+        </div>
+    </div>
+
+</main>
+
+<!-- 하단 네비게이션 (모바일) -->
+<nav id="bottomNav" class="hidden bg-white border-t border-gray-100 sticky bottom-0 md:hidden">
+    <div class="max-w-2xl mx-auto px-4 py-2 flex justify-around">
+        <a href="/index.html" class="flex flex-col items-center gap-1 text-mint-500">
+            <span class="text-xl">🏠</span>
+            <span class="text-xs font-medium">홈</span>
+        </a>
+        <a href="/mood/write.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors">
+            <span class="text-xl">✏️</span>
+            <span class="text-xs font-medium">기록</span>
+        </a>
+        <a href="/mood/list.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors">
+            <span class="text-xl">📋</span>
+            <span class="text-xs font-medium">목록</span>
+        </a>
+        <a href="/mypage.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-mint-500 transition-colors">
+            <span class="text-xl">👤</span>
+            <span class="text-xs font-medium">마이</span>
+        </a>
+    </div>
+</nav>
+
+<script src="/js/auth.js"></script>
+<script>
+
+    // 소셜 로그인 후 일회용 코드를 토큰으로 교환
+    const urlParams = new URLSearchParams(window.location.search);
+    const oauthCode = urlParams.get("code");
+    if (oauthCode) {
+        window.history.replaceState({}, document.title, "/");
+        fetch("/api/auth/oauth-token?code=" + oauthCode)
+            .then(res => {
+                if (!res.ok) throw new Error("코드 교환 실패");
+                return res.json();
+            })
+            .then(data => {
+                localStorage.setItem("accessToken", data.accessToken);
+                localStorage.setItem("refreshToken", data.refreshToken);
+                location.reload();
+            })
+            .catch(() => location.href = "/login.html");
+    }
+
+    const MOOD_EMOJI = { VERY_GOOD: '😄', GOOD: '😊', NORMAL: '😐', BAD: '😔', VERY_BAD: '😢' };
+    const DAY_LABEL  = ['일', '월', '화', '수', '목', '금', '토'];
+
+    function toDateStr(d) {
+        if (Array.isArray(d)) return `${d[0]}-${String(d[1]).padStart(2,'0')}-${String(d[2]).padStart(2,'0')}`;
+        return d;
+    }
+
+    function renderWeeklyFlow(records) {
+        const moodMap = {};
+        records.forEach(r => { moodMap[toDateStr(r.recordDate)] = r.mood; });
+
+        const today = new Date();
+        const days = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(today);
+            d.setDate(today.getDate() - (6 - i));
+            return d;
+        });
+
+        document.getElementById('weeklyFlow').innerHTML = days.map((d, idx) => {
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const isToday = idx === 6;
+            const mood    = moodMap[dateStr];
+            const emoji   = mood ? MOOD_EMOJI[mood] : null;
+            const label   = isToday ? '오늘' : DAY_LABEL[d.getDay()];
+
+            return `
+                <div class="flex flex-col items-center gap-1.5">
+                    <span class="text-xs font-medium ${isToday ? 'text-mint-600' : 'text-gray-400'}">${label}</span>
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center
+                        ${isToday ? 'ring-2 ring-mint-300 bg-mint-50' : ''}
+                        ${emoji ? 'text-2xl' : 'border-2 border-dashed border-gray-200'}">
+                        ${emoji ?? ''}
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    const token = localStorage.getItem("accessToken");
+
+    if (token) {
+        fetchWithAuth("/api/mypage")
+            .then(res => {
+                if (!res.ok) throw new Error("인증 실패");
+                return res.text();
+            })
+            .then(nickname => {
+                document.getElementById("nickname").innerText = nickname;
+                document.getElementById("userSection").style.display = "flex";
+                document.getElementById("logoutBtn").classList.remove("hidden");
+                document.getElementById("bottomNav").classList.remove("hidden");
+
+                return Promise.all([
+                    fetchWithAuth("/api/mood/today").then(r => r.json()),
+                    fetchWithAuth("/api/mood/list").then(r => r.json())
+                ]);
+            })
+            .then(([todayData, allRecords]) => {
+                const moodSection = document.getElementById("moodSection");
+                if (todayData.hasTodayRecord) {
+                    moodSection.innerHTML = `
+                        <p class="text-gray-500 text-sm mb-3">오늘의 기분</p>
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">😎</span>
+                            <div>
+                                <p class="text-gray-800 font-medium">오늘 이미 기록했어요!</p>
+                                <a href="/mood/list.html" class="text-mint-600 text-sm hover:underline">기록 확인하기 →</a>
+                            </div>
+                        </div>`;
+                } else {
+                    moodSection.innerHTML = `
+                        <p class="text-gray-500 text-sm mb-3">오늘의 기분</p>
+                        <a href="/mood/write.html"
+                           class="flex items-center justify-center gap-2 bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
+                            ✏️ 오늘의 기분 기록하기
+                        </a>`;
+                }
+
+                renderWeeklyFlow(allRecords);
+            })
+            .catch(err => {
+                console.error(err);
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                document.getElementById("guestSection").style.display = "flex";
+            });
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            fetchWithAuth("/api/logout", { method: "POST" })
+            .then(res => res.json())
+            .catch(() => ({ redirectUrl: "/login.html" }))
+            .then(data => {
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                location.href = data.redirectUrl;
+            });
+        });
+
+    } else {
+        document.getElementById("guestSection").style.display = "flex";
+    }
+</script>
+</body>
+</html>

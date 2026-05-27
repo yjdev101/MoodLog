@@ -44,15 +44,6 @@ public class JwtSecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/",
-                                "/*.html",
-                                "/css/**",
-                                "/js/**",
-                                "/mood/**",
-                                "/user/**",
-                                "/login",
-                                "/signup",
-                                "/mypage",
                                 "/api/login",
                                 "/api/signup",
                                 "/api/auth/login",

@@ -64,7 +64,7 @@ public class AuthController {
 
         // 만료 체크
         if (!refreshTokenService.isValid(token)) {
-            throw new RuntimeException("Refresh token expired");
+            return ResponseEntity.status(401).body("Refersh token이 만료되었습니다.");
         }
 
         // 사용자 가져오기

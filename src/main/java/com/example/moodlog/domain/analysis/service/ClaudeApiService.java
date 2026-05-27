@@ -50,9 +50,12 @@ public class ClaudeApiService {
             List<Map> content = (List<Map>) response.get("content");
             return (String) content.get(0).get("text");
 
-        } catch (WebClientResponseException  e) {
-            throw new RuntimeException("AI 분석 요청이 시간을 초과했습니다. 잠시 후 다시 시도해주세요.");
+        } catch (WebClientResponseException e) {
+            throw new RuntimeException("AI 서비스 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         } catch (Exception e) {
+            if (e.getCause() instanceof TimeoutException) {
+                throw new RuntimeException("AI 분석 요청이 시간을 초과했습니다. 잠시 후 다시 시도해주세요.");
+            }
             throw new RuntimeException("AI 서비스 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
     }

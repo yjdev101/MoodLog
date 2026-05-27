@@ -25,16 +25,16 @@
 ## 2. 기술 스택
 
 ### Backend
-| 분류 | 기술 |
-|---|---|
-| 언어 | Java 21 |
-| 프레임워크 | Spring Boot 3.5.11 |
-| ORM | Spring Data JPA + Hibernate 6 |
-| 보안 | Spring Security + JWT (jjwt 0.11.5) |
-| 소셜 로그인 | Spring Security OAuth2 Client |
+| 분류 | 기술                                      |
+|---|-----------------------------------------|
+| 언어 | Java 17                                 |
+| 프레임워크 | Spring Boot 3.5.11                      |
+| ORM | Spring Data JPA + Hibernate 6           |
+| 보안 | Spring Security + JWT (jjwt 0.11.5)     |
+| 소셜 로그인 | Spring Security OAuth2 Client           |
 | AI 연동 | Anthropic Claude API (claude-haiku-4-5) |
-| HTTP 클라이언트 | Spring WebFlux (WebClient) |
-| 빌드 도구 | Gradle |
+| HTTP 클라이언트 | Spring WebFlux (WebClient)              |
+| 빌드 도구 | Gradle                                  |
 
 ### Frontend
 | 분류 | 기술 |

@@ -46,6 +46,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         if ("kakao".equals(provider)) {
             providerId = oAuth2User.getAttribute("id").toString();
             Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
+            if (kakaoAccount == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "카카오 계정 정보를 가져올 수 없습니다.");
+                return;
+            }
             Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
             nickname = (String) profile.get("nickname");
             profileImage = (String) profile.getOrDefault("profile_image_url", "");

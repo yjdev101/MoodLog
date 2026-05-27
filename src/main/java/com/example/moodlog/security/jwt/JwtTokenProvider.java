@@ -68,18 +68,4 @@ public class JwtTokenProvider {
                 .getExpiration()
                 .toInstant();
     }
-
-    // Refresh Token 생성 (userId 기반)
-    public String createRefreshToken(String userId) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + 1000L * 60 * 60 * 24 * 7);
-
-        return Jwts.builder()
-                .setSubject(userId)
-                .setIssuedAt(now)
-                .setId(UUID.randomUUID().toString())
-                .setExpiration(expiry)
-                .signWith(getKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
 }

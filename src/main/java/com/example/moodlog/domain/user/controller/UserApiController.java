@@ -82,6 +82,6 @@ public class UserApiController {
             return ResponseEntity.status(401).body("인증 안됨");
         }
         User user = getUser(authentication);
-        return ResponseEntity.ok(user.getNickname());
+        return ResponseEntity.ok(user.getProfile().getNickname());
     }
 }

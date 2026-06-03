@@ -25,7 +25,6 @@ public class UserProfileService {
     public UserProfile createProfile(User user) {
         UserProfile profile = new UserProfile();
         profile.setUser(user);
-        profile.setNickname(user.getNickname()); //기본값
         profile.setCreatedAt(LocalDateTime.now());
 
         return userProfileRepository.save(profile);
@@ -43,7 +42,6 @@ public class UserProfileService {
 
         if (nickname != null && !nickname.isBlank()) {
             profile.setNickname(nickname);
-            user.setNickname(nickname);
             userRepository.save(user);
         }
 

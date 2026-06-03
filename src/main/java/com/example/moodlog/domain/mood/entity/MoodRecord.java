@@ -32,7 +32,8 @@ public class MoodRecord {
 
     @Column(columnDefinition = "TEXT")
     private String memo;
-    
+
+    // Str 쓴 이유?
     @Column(columnDefinition = "TEXT")
     private String tagText; // "발표, 회의, 과제, 피곤" 형태
     

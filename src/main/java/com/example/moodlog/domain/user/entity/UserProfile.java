@@ -23,6 +23,7 @@ public class UserProfile {
     @Column
     private String profileImagePath;
 
+    // User field 체크 nickname 두 개 중복
     private String nickname;
     private String bio;
 

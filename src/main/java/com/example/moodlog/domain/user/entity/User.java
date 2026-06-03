@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "user")
 public class User {
 
+    // N+1 문제 (User-Post)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,9 +25,6 @@ public class User {
 
     @Column(nullable = true)
     private String password;
-
-    @Column(nullable = false)
-    private String nickname;
     
     @Column
     private String profileImage;    // 카카오 프로필 사진

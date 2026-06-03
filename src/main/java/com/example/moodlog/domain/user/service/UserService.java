@@ -28,7 +28,6 @@ public class UserService {
         User user = User.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .nickname(nickname)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -44,19 +43,7 @@ public class UserService {
         return savedUser;
     }
 
-    // 로그인용 조회
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
-    }
-
-    // 프로필용 조회
-    public User findByNickname(String nickname) {
-        return userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
-    }
-
-    // 로그인
+    // ** (열거 공격)로그인
     public User login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));

@@ -76,7 +76,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .orElseGet(() -> {
                     User newUser = userRepository.save(
                             User.builder()
-                                    .nickname(finalNickname)
                                     .profileImage(finalProfileImage)
                                     .provider(provider)
                                     .providerId(finalProviderId)
@@ -93,7 +92,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtTokenProvider.createToken(user.getId().toString());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, 60L * 60 * 24 * 7);
 
-        // 토큰을 URL에 직접 노출하지 않고 30초짜리 일회용 코드로 교환
+        // ** URL에 직접 노출하지 않고 30초짜리 일회용 코드로 교환
         String code = oAuthTokenStore.generateCode(accessToken, refreshToken.getToken());
         response.sendRedirect("/?code=" + code);
     }

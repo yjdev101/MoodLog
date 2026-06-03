@@ -19,10 +19,6 @@ public class CustomerUserDetails implements UserDetails {
         return user.getId();
     }
 
-    public String getNickName() {
-        return user.getNickname();
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // ROLE_USER 고정, 필요시 enum 등으로 확장 가능

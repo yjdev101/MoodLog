@@ -39,7 +39,6 @@ public class DataInitializer implements CommandLineRunner {
         User user = User.builder()
                 .email("test@test.com")
                 .password(passwordEncoder.encode("test123$"))
-                .nickname("테스트유저")
                 .build();
         userRepository.save(user);
 

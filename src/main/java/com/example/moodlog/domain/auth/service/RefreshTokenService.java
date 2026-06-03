@@ -38,7 +38,7 @@ public class RefreshTokenService {
     // refresh token 조회, 서버 쪽(500) 에러가 아닌 클라이언트 에러 (401 에러)
     public RefreshToken findByToken(String token) {
         return refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Refresh token not found"));
     }
 
 

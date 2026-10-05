@@ -1,5 +1,7 @@
 package com.example.moodlog.domain.mood.service;
 
+import com.example.moodlog.common.exception.ConflictException;
+import com.example.moodlog.common.exception.ForbiddenException;
 import com.example.moodlog.domain.mood.entity.MoodRecord;
 import com.example.moodlog.domain.mood.entity.MoodType;
 import com.example.moodlog.domain.mood.repository.MoodRecordRepository;
@@ -35,7 +37,6 @@ class MoodServiceTest {
         user = User.builder()
                 .id(1L)
                 .email("test@test.com")
-                .nickname("테스터")
                 .build();
     }
 
@@ -49,7 +50,7 @@ class MoodServiceTest {
         // when & then
         assertThatThrownBy(() ->
                 moodService.createMood(user, MoodType.GOOD, "메모", "태그"))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(ConflictException.class)
                 .hasMessage("오늘 이미 기록했습니다.");
     }
 
@@ -106,7 +107,6 @@ class MoodServiceTest {
         User otherUser = User.builder()
                 .id(2L)
                 .email("other@test.com")
-                .nickname("다른유저")
                 .build();
 
         MoodRecord record = MoodRecord.builder()
@@ -122,7 +122,7 @@ class MoodServiceTest {
 
         // when & then
         assertThatThrownBy(() -> moodService.getMood(1L, user))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(ForbiddenException.class)
                 .hasMessage("권한이 없습니다.");
     }
 
@@ -139,9 +139,14 @@ class MoodServiceTest {
 
         given(moodRecordRepository.findById(1L))
                 .willReturn(Optional.of(record));
+        given(moodRecordRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
 
         // when
+        MoodRecord result = moodService.updateMood(1L, user, MoodType.BAD, "수정한 메모", "수정 태그");
 
         // then
+        assertThat(result.getMood()).isEqualTo(MoodType.BAD);
+        assertThat(result.getMemo()).isEqualTo("수정한 메모");
+        assertThat(result.getTagText()).isEqualTo("수정 태그");
     }
 }

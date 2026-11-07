@@ -1,8 +1,8 @@
 # MoodLog 🌙
 감정을 기록하고 AI가 분석해주는 감정 일기 앱
 
-## 배포 주소
-http://13.211.116.18.nip.io:9090/
+## 배포
+AWS EC2에 Docker Compose로 배포하여 운영했으며, 현재 서버는 종료한 상태입니다.
 
 ## 기술 스택
 - Java 17, Spring Boot 3.5
